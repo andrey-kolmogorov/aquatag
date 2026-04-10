@@ -174,7 +174,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                     completion?(.failure(error))
                     return
                 }
-                
+
                 guard let message = message,
                       let record = message.records.first else {
                     session.invalidate(errorMessage: "No data on tag")
@@ -183,73 +183,72 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                     completion?(.failure(NFCError.invalidTag))
                     return
                 }
-                
-                // Parse the NDEF payload
+
                 let payload = record.payload
-                var plantID = ""
-                
                 print("📡 NFC Raw payload bytes: \(payload.map { String(format: "%02x", $0) }.joined(separator: " "))")
-                
-                // NDEF Text Record format:
-                // Byte 0: Status byte (bit 7 = encoding: 0=UTF-8, 1=UTF-16)
-                // Bytes 1-N: Language code (length in bits 0-5 of status byte)
-                // Remaining: Text payload
-                
-                if payload.count > 3 {
-                    let statusByte = payload[0]
-                    let isUTF16 = (statusByte & 0x80) != 0
-                    let languageCodeLength = Int(statusByte & 0x3F)
-                    
-                    // Skip status byte + language code
-                    let textStart = 1 + languageCodeLength
-                    guard textStart < payload.count else {
-                        print("⚠️ Invalid payload: not enough data")
-                        session.invalidate(errorMessage: "Invalid tag data")
-                        self.readCompletion?(.failure(NFCError.invalidTag))
-                        return
-                    }
-                    
-                    let textData = payload.dropFirst(textStart)
-                    
-                    // Decode based on encoding
-                    if isUTF16 {
-                        print("📡 Detected UTF-16 encoding")
-                        var dataToConvert = Data(textData)
-                        
-                        // Check for BOM and determine endianness
-                        var encoding: String.Encoding = .utf16LittleEndian
-                        
-                        if dataToConvert.count >= 2 {
-                            let first = dataToConvert[0]
-                            let second = dataToConvert[1]
-                            
-                            if first == 0xFF && second == 0xFE {
-                                // Little-endian BOM
-                                print("📡 BOM detected: Little-endian")
-                                encoding = .utf16LittleEndian
-                                dataToConvert = dataToConvert.dropFirst(2)
-                            } else if first == 0xFE && second == 0xFF {
-                                // Big-endian BOM
-                                print("📡 BOM detected: Big-endian")
-                                encoding = .utf16BigEndian
-                                dataToConvert = dataToConvert.dropFirst(2)
-                            } else {
-                                // No BOM - assume little-endian (most common)
-                                print("📡 No BOM - assuming little-endian")
-                                encoding = .utf16LittleEndian
-                            }
+                print("📡 NFC Record TNF: \(record.typeNameFormat.rawValue), type: \(String(data: record.type, encoding: .utf8) ?? "?")")
+
+                var plantID = ""
+
+                // Handle URI records (new format: aquatag://water/{plantID})
+                if record.typeNameFormat == .nfcWellKnown,
+                   let type = String(data: record.type, encoding: .utf8), type == "U" {
+                    if let uri = record.wellKnownTypeURIPayload()?.absoluteString {
+                        print("📡 URI record: \(uri)")
+                        // Parse aquatag://water/{plantID}
+                        if uri.hasPrefix("aquatag://water/") {
+                            plantID = String(uri.dropFirst("aquatag://water/".count))
                         }
-                        
-                        plantID = String(data: dataToConvert, encoding: encoding) ?? ""
-                    } else {
-                        print("📡 Detected UTF-8 encoding")
-                        plantID = String(data: textData, encoding: .utf8) ?? ""
                     }
-                    
-                    print("📡 NFC Parsed plant ID: '\(plantID)'")
                 }
-                
-                // Validate we got something
+
+                // Handle Text records (legacy format: aquatag:{plantID})
+                if plantID.isEmpty,
+                   record.typeNameFormat == .nfcWellKnown,
+                   let type = String(data: record.type, encoding: .utf8), type == "T" {
+                    if payload.count > 3 {
+                        let statusByte = payload[0]
+                        let isUTF16 = (statusByte & 0x80) != 0
+                        let languageCodeLength = Int(statusByte & 0x3F)
+                        let textStart = 1 + languageCodeLength
+
+                        guard textStart < payload.count else {
+                            print("⚠️ Invalid payload: not enough data")
+                            session.invalidate(errorMessage: "Invalid tag data")
+                            self.readCompletion?(.failure(NFCError.invalidTag))
+                            return
+                        }
+
+                        let textData = payload.dropFirst(textStart)
+
+                        if isUTF16 {
+                            print("📡 Detected UTF-16 encoding")
+                            var dataToConvert = Data(textData)
+                            var encoding: String.Encoding = .utf16LittleEndian
+
+                            if dataToConvert.count >= 2 {
+                                let first = dataToConvert[0]
+                                let second = dataToConvert[1]
+                                if first == 0xFF && second == 0xFE {
+                                    print("📡 BOM detected: Little-endian")
+                                    encoding = .utf16LittleEndian
+                                    dataToConvert = dataToConvert.dropFirst(2)
+                                } else if first == 0xFE && second == 0xFF {
+                                    print("📡 BOM detected: Big-endian")
+                                    encoding = .utf16BigEndian
+                                    dataToConvert = dataToConvert.dropFirst(2)
+                                }
+                            }
+                            plantID = String(data: dataToConvert, encoding: encoding) ?? ""
+                        } else {
+                            print("📡 Detected UTF-8 encoding")
+                            plantID = String(data: textData, encoding: .utf8) ?? ""
+                        }
+                    }
+                }
+
+                print("📡 NFC Parsed plant ID: '\(plantID)'")
+
                 guard !plantID.isEmpty else {
                     print("⚠️ Empty plant ID after parsing")
                     session.invalidate(errorMessage: "Could not read tag data")
@@ -258,7 +257,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                     completion?(.failure(NFCError.invalidTag))
                     return
                 }
-                
+
                 session.alertMessage = "✅ Tag read successfully!"
                 session.invalidate()
                 let completion = self.readCompletion
@@ -297,13 +296,11 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                 return
             }
             
-            // Create NDEF message with plant ID
-            let payload = NFCNDEFPayload.wellKnownTypeTextPayload(
-                string: plantID,
-                locale: Locale(identifier: "en")
-            )
-            
-            guard let payload = payload else {
+            // Create NDEF message with URI record for background tag reading
+            // Format: aquatag://water/{plantID}
+            let urlString = "aquatag://water/\(plantID)"
+            guard let url = URL(string: urlString),
+                  let urlPayload = NFCNDEFPayload.wellKnownTypeURIPayload(url: url) else {
                 session.invalidate(errorMessage: "Failed to create payload")
                 let completion = self.writeCompletion
                 self.writeCompletion = nil
@@ -311,8 +308,8 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                 completion?(.failure(NFCError.writeFailed))
                 return
             }
-            
-            let message = NFCNDEFMessage(records: [payload])
+
+            let message = NFCNDEFMessage(records: [urlPayload])
             
             tag.writeNDEF(message) { error in
                 if let error = error {
