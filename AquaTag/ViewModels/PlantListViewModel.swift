@@ -24,6 +24,8 @@ class PlantListViewModel {
     var showingNewPlantSheet = false
     var scannedPlantID: String?
     var isRefreshing = false
+    var showingWaterConfirmation = false
+    var plantPendingConfirmation: Plant?
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -88,9 +90,8 @@ class PlantListViewModel {
             
             if let plant = plants.first {
                 print("✅ Found plant: \(plant.name)")
-                // Known plant - log watering
                 scannedPlant = plant
-                await waterPlant(plant)
+                await waterPlantIfNeeded(plant)
             } else {
                 print("❌ No plant found with ID '\(cleanedID)'")
                 // Unknown plant - show registration sheet
@@ -104,7 +105,23 @@ class PlantListViewModel {
     }
     
     // MARK: - Watering
-    
+
+    func waterPlantIfNeeded(_ plant: Plant) async {
+        if plant.wateringStatus == .ok {
+            // Plant doesn't need water yet — ask for confirmation
+            plantPendingConfirmation = plant
+            showingWaterConfirmation = true
+        } else {
+            await waterPlant(plant)
+        }
+    }
+
+    func confirmWatering() async {
+        guard let plant = plantPendingConfirmation else { return }
+        plantPendingConfirmation = nil
+        await waterPlant(plant)
+    }
+
     func waterPlant(_ plant: Plant) async {
         // Get settings
         let settingsDescriptor = FetchDescriptor<AppSettings>()
