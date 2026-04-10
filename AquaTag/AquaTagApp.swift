@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct AquaTagApp: App {
@@ -13,5 +14,11 @@ struct AquaTagApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [Plant.self, AppSettings.self, PendingWateringEvent.self])
+    }
+    
+    init() {
+        // Setup notification categories
+        NotificationService.shared.setupNotificationCategories()
     }
 }
