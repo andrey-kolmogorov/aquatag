@@ -106,6 +106,22 @@ struct PlantListView: View {
             } message: {
                 Text(viewModel?.errorMessage ?? "")
             }
+            .alert("Already Watered", isPresented: Binding(
+                get: { viewModel?.showingWaterConfirmation ?? false },
+                set: { if !$0 {
+                    viewModel?.showingWaterConfirmation = false
+                    viewModel?.plantPendingConfirmation = nil
+                }}
+            )) {
+                Button("Water Anyway") {
+                    Task { await viewModel?.confirmWatering() }
+                }
+                Button("Skip", role: .cancel) { }
+            } message: {
+                if let plant = viewModel?.plantPendingConfirmation {
+                    Text("\(plant.emoji) \(plant.name) is watered enough! You will be notified the day it needs watering. Would you still water it?")
+                }
+            }
             .onAppear {
                 if viewModel == nil {
                     viewModel = PlantListViewModel(modelContext: modelContext)
@@ -142,7 +158,7 @@ struct PlantListView: View {
                 }) {
                     PlantRowView(plant: plant) {
                         Task {
-                            await viewModel?.waterPlant(plant)
+                            await viewModel?.waterPlantIfNeeded(plant)
                         }
                     }
                 }
