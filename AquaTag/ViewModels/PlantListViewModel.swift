@@ -1,0 +1,279 @@
+//
+//  PlantListViewModel.swift
+//  AquaTag
+//
+//  Created by Andrei Kolmogorov on 05.04.26.
+//
+
+import Foundation
+import SwiftData
+import SwiftUI
+
+@MainActor
+@Observable
+class PlantListViewModel {
+    private let modelContext: ModelContext
+    private let nfcService = NFCService()
+    
+    var isScanning = false
+    var showingError = false
+    var errorMessage = ""
+    var showingSuccess = false
+    var successMessage = ""
+    var scannedPlant: Plant?
+    var showingNewPlantSheet = false
+    var scannedPlantID: String?
+    var isRefreshing = false
+    
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
+    
+    // MARK: - NFC Scanning
+    
+    func scanNFCTag() async {
+        guard NFCService.isNFCAvailable() else {
+            errorMessage = "NFC is not available on this device"
+            showingError = true
+            return
+        }
+        
+        isScanning = true
+        
+        do {
+            let plantID = try await nfcService.readTag()
+            await handleScannedPlantID(plantID)
+        } catch NFCService.NFCError.scanCancelled {
+            // User cancelled - no error needed
+            print("NFC scan cancelled by user")
+        } catch {
+            errorMessage = "NFC scan failed: \(error.localizedDescription)"
+            showingError = true
+            print("NFC Error: \(error)")
+        }
+        
+        isScanning = false
+    }
+    
+    private func handleScannedPlantID(_ plantID: String) async {
+        print("🏷️ Raw scanned NFC data: '\(plantID)'")
+        
+        // Parse "aquatag:plantid" format
+        let cleanedID = plantID.replacingOccurrences(of: "aquatag:", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        print("🏷️ Cleaned plant ID: '\(cleanedID)'")
+        
+        // Validate plant ID
+        guard !cleanedID.isEmpty else {
+            errorMessage = "Invalid tag format. Expected: aquatag:{plant_id}\nReceived: \(plantID)"
+            showingError = true
+            return
+        }
+        
+        // Look up plant in database
+        let descriptor = FetchDescriptor<Plant>(
+            predicate: #Predicate { $0.id == cleanedID }
+        )
+        
+        do {
+            let plants = try modelContext.fetch(descriptor)
+            print("🔍 Found \(plants.count) plants matching ID '\(cleanedID)'")
+            
+            if let plant = plants.first {
+                print("✅ Found plant: \(plant.name)")
+                // Known plant - log watering
+                scannedPlant = plant
+                await waterPlant(plant)
+            } else {
+                print("❌ No plant found with ID '\(cleanedID)'")
+                // Unknown plant - show registration sheet
+                scannedPlantID = cleanedID
+                showingNewPlantSheet = true
+            }
+        } catch {
+            errorMessage = "Failed to lookup plant: \(error.localizedDescription)"
+            showingError = true
+        }
+    }
+    
+    // MARK: - Watering
+    
+    func waterPlant(_ plant: Plant) async {
+        // Get settings
+        let settingsDescriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(settingsDescriptor).first else {
+            errorMessage = "Settings not found. Please restart the app."
+            showingError = true
+            return
+        }
+        
+        // Get HA token from keychain
+        let token = (try? KeychainService.getHAToken()) ?? ""
+        
+        // Check if HA is configured
+        guard !settings.nabucasaURL.isEmpty,
+              !settings.deviceName.isEmpty,
+              !token.isEmpty else {
+            errorMessage = "Please configure Home Assistant in Settings first:\n• Nabu Casa URL\n• Access Token\n• Device Name"
+            showingError = true
+            return
+        }
+        
+        let timestamp = Date()
+        
+        // Update local data immediately
+        plant.lastWateredDate = timestamp
+        plant.lastWateredBy = settings.deviceName
+        
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = "Failed to save: \(error.localizedDescription)"
+            showingError = true
+            return
+        }
+        
+        // Schedule notification
+        if settings.notificationsEnabled {
+            do {
+                try await NotificationService.shared.scheduleWateringReminder(
+                    for: plant,
+                    preferredTime: settings.notificationTime
+                )
+            } catch {
+                print("Failed to schedule notification: \(error)")
+            }
+        }
+        
+        // Log to Home Assistant
+        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
+        
+        do {
+            try await haService.logWatering(
+                plantID: plant.id,
+                plantName: plant.name,
+                deviceName: settings.deviceName,
+                timestamp: timestamp
+            )
+            
+            successMessage = "💧 Watered \(plant.name)!"
+            showingSuccess = true
+            
+            // Haptic feedback
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            
+        } catch {
+            // Save as pending if HA sync fails
+            let pendingEvent = PendingWateringEvent(
+                plantID: plant.id,
+                plantName: plant.name,
+                deviceName: settings.deviceName,
+                timestamp: timestamp
+            )
+            modelContext.insert(pendingEvent)
+            try? modelContext.save()
+            
+            successMessage = "💧 Watered \(plant.name) (saved locally)"
+            showingSuccess = true
+            
+            print("Failed to sync with HA: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Refresh from HA
+    
+    func refreshFromHA() async {
+        let settingsDescriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
+              settings.isConfigured,
+              let token = try? KeychainService.getHAToken() else {
+            return
+        }
+        
+        isRefreshing = true
+        
+        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
+        
+        // Fetch all plants
+        let plantsDescriptor = FetchDescriptor<Plant>()
+        guard let plants = try? modelContext.fetch(plantsDescriptor) else {
+            isRefreshing = false
+            return
+        }
+        
+        // Update each plant's last watered date from HA
+        for plant in plants {
+            do {
+                if let lastWatered = try await haService.getLastWateredDate(plantID: plant.id) {
+                    plant.lastWateredDate = lastWatered
+                }
+            } catch {
+                print("Failed to fetch last watered date for \(plant.name): \(error)")
+            }
+        }
+        
+        try? modelContext.save()
+        isRefreshing = false
+    }
+    
+    // MARK: - Retry Pending Events
+    
+    func retryPendingEvents() async {
+        let descriptor = FetchDescriptor<PendingWateringEvent>()
+        guard let pendingEvents = try? modelContext.fetch(descriptor),
+              !pendingEvents.isEmpty else {
+            return
+        }
+        
+        let settingsDescriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
+              settings.isConfigured,
+              let token = try? KeychainService.getHAToken() else {
+            return
+        }
+        
+        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
+        
+        for event in pendingEvents {
+            do {
+                try await haService.logWatering(
+                    plantID: event.plantID,
+                    plantName: event.plantName,
+                    deviceName: event.deviceName,
+                    timestamp: event.timestamp
+                )
+                
+                // Success - remove from pending
+                modelContext.delete(event)
+            } catch {
+                // Keep in pending queue
+                print("Failed to sync pending event: \(error)")
+            }
+        }
+        
+        try? modelContext.save()
+    }
+    
+    // MARK: - Auto-Create HA Helper
+    
+    func ensureHelperExists(for plant: Plant) async {
+        let settingsDescriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
+              settings.isConfigured,
+              let token = try? KeychainService.getHAToken() else {
+            return
+        }
+        
+        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
+        
+        do {
+            try await haService.ensureHelperExists(plantID: plant.id, plantName: plant.name)
+            print("✅ Helper created/verified for \(plant.name)")
+        } catch {
+            print("⚠️ Failed to create helper for \(plant.name): \(error)")
+            // Don't show error to user - this is a background operation
+        }
+    }
+}

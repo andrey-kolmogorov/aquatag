@@ -4,4 +4,61 @@
    <FileRef
       location = "self:">
    </FileRef>
+   <FileRef
+      location = "group:ModelsPlant.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ModelsAppSettings.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ModelsPendingWateringEvent.swift">
+   </FileRef>
+   <FileRef
+      location = "group:UtilitiesPlantIDGenerator.swift">
+   </FileRef>
+   <FileRef
+      location = "group:UtilitiesDateFormatters.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ServicesKeychainService.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ServicesHAService.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ServicesNotificationService.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ServicesNFCService.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsComponentsWateringStatusBadge.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsComponentsPlantRowView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewModelsPlantListViewModel.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewModelsSettingsViewModel.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsPlantListView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsAddPlantView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsPlantDetailView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsSettingsView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ViewsWateringHistoryView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AquaTagModelsPlant.swift">
+   </FileRef>
 </Workspace>
