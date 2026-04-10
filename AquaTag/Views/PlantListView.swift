@@ -14,6 +14,7 @@ struct PlantListView: View {
     @State private var viewModel: PlantListViewModel?
     @State private var showingAddPlant = false
     @State private var selectedPlant: Plant?
+    @Binding var pendingPlantID: String?
     
     var body: some View {
         NavigationStack {
@@ -109,10 +110,25 @@ struct PlantListView: View {
                 if viewModel == nil {
                     viewModel = PlantListViewModel(modelContext: modelContext)
                 }
-                
+
                 // Retry any pending events
                 Task {
                     await viewModel?.retryPendingEvents()
+                }
+
+                // Handle pending URL from cold launch
+                if let plantID = pendingPlantID {
+                    pendingPlantID = nil
+                    Task {
+                        await viewModel?.handleBackgroundTag(plantID: plantID)
+                    }
+                }
+            }
+            .onChange(of: pendingPlantID) { _, newValue in
+                guard let plantID = newValue else { return }
+                pendingPlantID = nil
+                Task {
+                    await viewModel?.handleBackgroundTag(plantID: plantID)
                 }
             }
         }
@@ -170,6 +186,7 @@ struct PlantListView: View {
 }
 
 #Preview {
-    PlantListView()
+    @Previewable @State var pendingPlantID: String? = nil
+    PlantListView(pendingPlantID: $pendingPlantID)
         .modelContainer(for: [Plant.self, AppSettings.self])
 }

@@ -55,6 +55,12 @@ class PlantListViewModel {
         isScanning = false
     }
     
+    // Called when app is opened via background NFC tag (aquatag://water/{plantID})
+    func handleBackgroundTag(plantID: String) async {
+        print("🏷️ Background tag: processing plant ID '\(plantID)'")
+        await handleScannedPlantID("aquatag:\(plantID)")
+    }
+
     private func handleScannedPlantID(_ plantID: String) async {
         print("🏷️ Raw scanned NFC data: '\(plantID)'")
         
