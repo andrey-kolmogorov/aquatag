@@ -174,16 +174,15 @@ struct PlantDetailView: View {
     private func writeNFCTag() {
         Task {
             isWritingTag = true
-            
+
             do {
-                let plantID = "aquatag:\(plant.id)"
-                try await nfcService.writeTag(plantID: plantID)
+                try await nfcService.writeTag(plantID: plant.id)
                 showingWriteSuccess = true
             } catch {
                 writeErrorMessage = error.localizedDescription
                 showingWriteError = true
             }
-            
+
             isWritingTag = false
         }
     }
