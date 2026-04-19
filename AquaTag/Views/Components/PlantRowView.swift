@@ -1,8 +1,15 @@
 //
 //  PlantRowView.swift
-//  AquaTag
+//  AquaTag  — redesigned
 //
-//  Created by Andrei Kolmogorov on 05.04.26.
+//  Replaces the existing PlantRowView. Same API:
+//    PlantRowView(plant: plant, onWaterNow: { ... })
+//
+//  Changes:
+//  • Swaps the emoji for CharacterView
+//  • Uses Fraunces for plant name, mono for "last watered" timestamp
+//  • Primary background tile (Paper) with subtle border
+//  • Water button uses brand Moss with water drop glyph
 //
 
 import SwiftUI
@@ -10,44 +17,55 @@ import SwiftUI
 struct PlantRowView: View {
     let plant: Plant
     let onWaterNow: () -> Void
-    
+
     var body: some View {
-        HStack(spacing: 12) {
-            // Emoji
-            Text(plant.emoji)
-                .font(.system(size: 40))
-            
-            // Plant info
+        HStack(spacing: AquaTag.Spacing.md) {
+            CharacterView(character: plant.character, size: .medium)
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(plant.name)
-                    .font(.headline)
-                
+                    .font(AquaTag.Typography.displayS)
+                    .foregroundStyle(AquaTag.Colors.ink)
+                    .lineLimit(1)
+
                 if let lastWatered = plant.lastWateredDate {
                     Text("Last watered \(DateFormatters.relative.localizedString(for: lastWatered, relativeTo: Date()))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AquaTag.Typography.caption)
+                        .foregroundStyle(AquaTag.Colors.inkSoft)
+                        .lineLimit(1)
                 } else {
                     Text("Never watered")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AquaTag.Typography.caption)
+                        .foregroundStyle(AquaTag.Colors.inkMute)
                 }
-                
+
                 WateringStatusBadge(plant: plant)
+                    .padding(.top, 2)
             }
-            
-            Spacer()
-            
-            // Quick water button
+
+            Spacer(minLength: AquaTag.Spacing.xs)
+
+            // Water-now button
             Button(action: onWaterNow) {
                 Image(systemName: "drop.fill")
-                    .font(.title2)
-                    .foregroundStyle(.white)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AquaTag.Colors.cream)
                     .frame(width: 44, height: 44)
-                    .background(Color.blue)
-                    .clipShape(Circle())
+                    .background(
+                        Circle().fill(AquaTag.Colors.moss)
+                    )
+                    .atShadow(AquaTag.Shadow.card)
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 8)
+        .padding(AquaTag.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AquaTag.Radius.lg, style: .continuous)
+                .fill(AquaTag.Colors.paper)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AquaTag.Radius.lg, style: .continuous)
+                .strokeBorder(AquaTag.Colors.divider, lineWidth: 0.5)
+        )
     }
 }
