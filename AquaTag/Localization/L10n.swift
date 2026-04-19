@@ -118,11 +118,21 @@ enum L10n {
 
     // MARK: History
     enum History {
-        static let eyebrow        = LocalizedStringKey("history.eyebrow")
-        static let title          = LocalizedStringKey("history.title")
-        static let emptyTitle     = LocalizedStringKey("history.empty.title")
-        static let emptyBody      = LocalizedStringKey("history.empty.body")
-        static let unknownWaterer = LocalizedStringKey("history.watered.by.unknown")
+        static let eyebrow         = LocalizedStringKey("history.eyebrow")
+        static let eyebrowSixWeeks = LocalizedStringKey("history.eyebrow.six.weeks")
+        static let title           = LocalizedStringKey("history.title")
+        static let waterings       = LocalizedStringKey("history.waterings")
+        static let dayStreak       = LocalizedStringKey("history.day.streak")
+        static let thisWeek        = LocalizedStringKey("history.this.week")
+        static let noneThisWeek    = LocalizedStringKey("history.none.this.week")
+        static let emptyTitle      = LocalizedStringKey("history.empty.title")
+        static let emptyBody       = LocalizedStringKey("history.empty.body")
+        static let unknownWaterer  = LocalizedStringKey("history.watered.by.unknown")
+
+        /// Positional substitution — order is preserved across locales.
+        static func wateredBy(when: String, who: String) -> String {
+            String(format: String(localized: "history.watered.by.when.who"), when, who)
+        }
     }
 
     // MARK: Settings
