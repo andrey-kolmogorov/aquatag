@@ -24,11 +24,11 @@ struct WateringHistoryView: View {
 
     private var heroHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("HISTORY")
+            Text(L10n.History.eyebrow)
                 .font(AquaTag.Typography.eyebrow)
                 .tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
-            Text("Watering log")
+            Text(L10n.History.title)
                 .font(AquaTag.Typography.displayL)
                 .foregroundStyle(AquaTag.Colors.ink)
         }
@@ -41,7 +41,7 @@ struct WateringHistoryView: View {
     private var events: [WateringEvent] {
         plants.compactMap { p in
             guard let t = p.lastWateredDate else { return nil }
-            return WateringEvent(plant: p, timestamp: t, wateredBy: p.lastWateredBy ?? "Unknown")
+            return WateringEvent(plant: p, timestamp: t, wateredBy: p.lastWateredBy ?? String(localized: "history.watered.by.unknown"))
         }.sorted { $0.timestamp > $1.timestamp }
     }
 
@@ -63,10 +63,10 @@ struct WateringHistoryView: View {
             Image(systemName: "drop.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(AquaTag.Colors.moss.opacity(0.4))
-            Text("No watering yet")
+            Text(L10n.History.emptyTitle)
                 .font(AquaTag.Typography.displayM)
                 .foregroundStyle(AquaTag.Colors.ink)
-            Text("Scan a sticker or tap a plant to log your first watering.")
+            Text(L10n.History.emptyBody)
                 .font(AquaTag.Typography.body)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
                 .multilineTextAlignment(.center)

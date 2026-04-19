@@ -53,12 +53,12 @@ class NotificationService {
         dateComponents.minute = timeComponents.minute
         
         let content = UNMutableNotificationContent()
-        content.title = "\(plant.emoji) Time to water \(plant.name)!"
-        
+        content.title = String(format: String(localized: "notification.title"), plant.emoji, plant.name)
+
         if let daysSince = plant.daysSinceLastWatered {
-            content.body = "Last watered \(daysSince) days ago"
+            content.body = String(format: String(localized: "notification.body.days.ago"), daysSince)
         } else {
-            content.body = "It's time to give your plant some water"
+            content.body = String(localized: "notification.body.default")
         }
         
         content.sound = .default

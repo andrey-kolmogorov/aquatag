@@ -41,11 +41,11 @@ struct SettingsView: View {
 
     private var heroHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("SETTINGS")
+            Text(L10n.Settings.eyebrow)
                 .font(AquaTag.Typography.eyebrow)
                 .tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
-            Text("Preferences")
+            Text(L10n.Settings.title)
                 .font(AquaTag.Typography.displayL)
                 .foregroundStyle(AquaTag.Colors.ink)
         }
@@ -56,13 +56,13 @@ struct SettingsView: View {
     // MARK: - Cards
 
     private var haCard: some View {
-        card(title: "HOME ASSISTANT", subtitle: "Optional. Sync watering across devices.") {
+        card(title: L10n.Settings.sectionHA, subtitle: L10n.Settings.sectionHASub) {
             VStack(spacing: AquaTag.Spacing.sm) {
-                field(label: "Nabu Casa URL",
+                field(label: L10n.Settings.fieldURL,
                       value: Binding(get: { viewModel?.nabucasaURL ?? "" },
                                      set: { viewModel?.nabucasaURL = $0 }),
                       keyboard: .URL)
-                field(label: "Long-lived token",
+                field(label: L10n.Settings.fieldToken,
                       value: Binding(get: { viewModel?.haToken ?? "" },
                                      set: { viewModel?.haToken = $0 }),
                       secure: true)
@@ -74,7 +74,7 @@ struct SettingsView: View {
                         if viewModel?.isTesting == true { ProgressView() }
                         else {
                             Image(systemName: "antenna.radiowaves.left.and.right")
-                            Text("Test connection")
+                            Text(L10n.Settings.testConnection)
                         }
                     }
                     .font(AquaTag.Typography.headline)
@@ -90,12 +90,12 @@ struct SettingsView: View {
                 if let result = viewModel?.testResult {
                     switch result {
                     case .success:
-                        Label("Connected", systemImage: "checkmark.circle.fill")
+                        Label(L10n.Settings.connected, systemImage: "checkmark.circle.fill")
                             .font(AquaTag.Typography.subhead)
                             .foregroundStyle(AquaTag.Colors.moss)
                     case .failure(let msg):
                         VStack(alignment: .leading) {
-                            Label("Connection failed", systemImage: "xmark.circle.fill")
+                            Label(L10n.Settings.connectionFail, systemImage: "xmark.circle.fill")
                                 .font(AquaTag.Typography.subhead)
                                 .foregroundStyle(AquaTag.Colors.terracotta)
                             Text(msg).font(AquaTag.Typography.caption)
@@ -108,40 +108,41 @@ struct SettingsView: View {
     }
 
     private var deviceCard: some View {
-        card(title: "DEVICE", subtitle: "Who's watering, for multi-person homes.") {
-            field(label: "Device name",
+        card(title: L10n.Settings.sectionDevice, subtitle: L10n.Settings.sectionDeviceSub) {
+            field(label: L10n.Settings.fieldDeviceName,
                   value: Binding(get: { viewModel?.deviceName ?? "" },
                                  set: { viewModel?.deviceName = $0 }))
         }
     }
 
     private var notificationsCard: some View {
-        card(title: "REMINDERS") {
+        card(title: L10n.Settings.sectionRemind) {
             VStack(spacing: AquaTag.Spacing.sm) {
                 Toggle(isOn: Binding(get: { viewModel?.notificationsEnabled ?? true },
                                      set: { v in
                                          viewModel?.notificationsEnabled = v
                                          if v { Task { await viewModel?.requestNotificationPermission() } }
                                      })) {
-                    Text("Watering reminders").font(AquaTag.Typography.body)
+                    Text(L10n.Settings.remindersToggle).font(AquaTag.Typography.body)
                 }
                 .tint(AquaTag.Colors.moss)
 
                 if viewModel?.notificationsEnabled == true {
-                    DatePicker("Reminder time",
-                        selection: Binding(get: { viewModel?.notificationTime ?? Date() },
-                                           set: { viewModel?.notificationTime = $0 }),
-                        displayedComponents: .hourAndMinute)
-                        .font(AquaTag.Typography.body)
+                    DatePicker(selection: Binding(get: { viewModel?.notificationTime ?? Date() },
+                                                  set: { viewModel?.notificationTime = $0 }),
+                        displayedComponents: .hourAndMinute) {
+                        Text(L10n.Settings.remindersTime)
+                    }
+                    .font(AquaTag.Typography.body)
                 }
 
                 Stepper(value: Binding(get: { viewModel?.defaultWateringIntervalDays ?? 7 },
                                        set: { viewModel?.defaultWateringIntervalDays = $0 }),
                         in: 1...30) {
                     HStack {
-                        Text("Default interval").font(AquaTag.Typography.body)
+                        Text(L10n.Settings.defaultInterval).font(AquaTag.Typography.body)
                         Spacer()
-                        Text("\(viewModel?.defaultWateringIntervalDays ?? 7) days")
+                        Text(L10n.Settings.defaultIntervalDays(viewModel?.defaultWateringIntervalDays ?? 7))
                             .font(AquaTag.Typography.subhead)
                             .foregroundStyle(AquaTag.Colors.inkSoft)
                     }
@@ -151,9 +152,9 @@ struct SettingsView: View {
     }
 
     private var plantHelpersCard: some View {
-        card(title: "PLANT HELPERS", subtitle: "Auto-created in Home Assistant.") {
+        card(title: L10n.Settings.sectionHelpers, subtitle: L10n.Settings.helpersSub) {
             if plants.isEmpty {
-                Text("Add your first plant to see its HA entity.")
+                Text(L10n.Settings.helpersEmpty)
                     .font(AquaTag.Typography.caption)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
             } else {
@@ -179,10 +180,10 @@ struct SettingsView: View {
 
     private var footer: some View {
         VStack(spacing: 4) {
-            Text("Aquatag · v1.0")
+            Text(L10n.Settings.footerVersion)
                 .font(AquaTag.Typography.caption)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
-            Text("Made for plants.")
+            Text(L10n.Settings.footerTagline)
                 .font(AquaTag.Typography.caption.italic())
                 .foregroundStyle(AquaTag.Colors.inkMute)
         }
@@ -193,7 +194,7 @@ struct SettingsView: View {
     // MARK: - Building blocks
 
     @ViewBuilder
-    private func card<Content: View>(title: String, subtitle: String? = nil,
+    private func card<Content: View>(title: LocalizedStringKey, subtitle: LocalizedStringKey? = nil,
                                      @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.sm) {
             VStack(alignment: .leading, spacing: 2) {
@@ -214,12 +215,13 @@ struct SettingsView: View {
             .strokeBorder(AquaTag.Colors.divider, lineWidth: 0.5))
     }
 
-    private func field(label: String, value: Binding<String>,
+    private func field(label: LocalizedStringKey, value: Binding<String>,
                        keyboard: UIKeyboardType = .default,
                        secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label.uppercased()).font(AquaTag.Typography.micro).tracking(1)
+            Text(label).font(AquaTag.Typography.micro).tracking(1)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
+                .textCase(.uppercase)
             Group {
                 if secure && !value.wrappedValue.isEmpty {
                     SecureField("", text: value)

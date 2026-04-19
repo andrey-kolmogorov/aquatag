@@ -114,6 +114,11 @@
 "water.success"                  = "💧 %@ gegossen!";
 "water.success.offline"          = "💧 %@ gegossen (lokal gespeichert)";
 
+// MARK: - Push notifications
+"notification.title"             = "%@ %@ gießen!";
+"notification.body.days.ago"     = "Zuletzt vor %d Tagen gegossen";
+"notification.body.default"      = "Deine Pflanze braucht Wasser";
+
 // MARK: - Characters — archetype + tagline per character
 "character.monty.archetype"      = "Monstera";
 "character.monty.tagline"        = "Große Blätter, größerer Durst.";

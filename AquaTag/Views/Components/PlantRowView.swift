@@ -29,12 +29,12 @@ struct PlantRowView: View {
                     .lineLimit(1)
 
                 if let lastWatered = plant.lastWateredDate {
-                    Text("Last watered \(DateFormatters.relative.localizedString(for: lastWatered, relativeTo: Date()))")
+                    Text(L10n.Row.lastWatered(DateFormatters.relative.localizedString(for: lastWatered, relativeTo: Date())))
                         .font(AquaTag.Typography.caption)
                         .foregroundStyle(AquaTag.Colors.inkSoft)
                         .lineLimit(1)
                 } else {
-                    Text("Never watered")
+                    Text(L10n.Row.neverWatered)
                         .font(AquaTag.Typography.caption)
                         .foregroundStyle(AquaTag.Colors.inkMute)
                 }

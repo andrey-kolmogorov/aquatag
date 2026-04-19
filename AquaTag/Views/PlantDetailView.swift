@@ -43,14 +43,14 @@ struct PlantDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(isEditing ? "Cancel" : "Done") {
+                    Button(isEditing ? L10n.Detail.toolbarCancel : L10n.Detail.toolbarDone) {
                         if isEditing { modelContext.rollback(); isEditing = false }
                         else { dismiss() }
                     }
                     .foregroundStyle(AquaTag.Colors.inkSoft)
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button(isEditing ? "Save" : "Edit") {
+                    Button(isEditing ? L10n.Detail.toolbarSave : L10n.Detail.toolbarEdit) {
                         if isEditing { try? modelContext.save(); isEditing = false }
                         else { isEditing = true }
                     }
@@ -58,14 +58,14 @@ struct PlantDetailView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .alert("Tag Written", isPresented: $showingWriteSuccess) { Button("OK") { } }
-            .alert("Write Failed", isPresented: $showingWriteError) {
-                Button("OK") { }
+            .alert(L10n.Detail.writeSuccess, isPresented: $showingWriteSuccess) { Button(L10n.Plants.ok) { } }
+            .alert(L10n.Detail.writeFailed, isPresented: $showingWriteError) {
+                Button(L10n.Plants.ok) { }
             } message: { Text(writeErrorMessage) }
-            .alert("Delete Plant?", isPresented: $showingDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) { deletePlant() }
-            } message: { Text("This will permanently delete \(plant.name) and cannot be undone.") }
+            .alert(L10n.Detail.deleteTitle, isPresented: $showingDeleteConfirmation) {
+                Button(L10n.Plants.cancel, role: .cancel) { }
+                Button(L10n.Detail.deleteAction, role: .destructive) { deletePlant() }
+            } message: { Text(L10n.Detail.deleteBody(plantName: plant.name)) }
         }
     }
 
@@ -82,7 +82,8 @@ struct PlantDetailView: View {
                     .foregroundStyle(AquaTag.Colors.ink)
                     .multilineTextAlignment(.center)
 
-                Text(plant.character.archetype.uppercased())
+                Text(plant.character.archetype)
+                    .textCase(.uppercase)
                     .font(AquaTag.Typography.eyebrow)
                     .tracking(2)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
@@ -94,21 +95,21 @@ struct PlantDetailView: View {
 
     private var statsStrip: some View {
         HStack(spacing: AquaTag.Spacing.sm) {
-            stat(label: "EVERY", value: "\(plant.wateringIntervalDays)", unit: "days")
+            stat(label: L10n.Detail.statEvery, value: "\(plant.wateringIntervalDays)", unit: L10n.Detail.statDays)
             stat(
-                label: "LAST",
+                label: L10n.Detail.statLast,
                 value: plant.lastWateredDate.map { DateFormatters.short.string(from: $0) } ?? "—",
                 unit: nil
             )
             stat(
-                label: "NEXT",
+                label: L10n.Detail.statNext,
                 value: plant.nextWateringDate.map { DateFormatters.short.string(from: $0) } ?? "—",
                 unit: nil
             )
         }
     }
 
-    private func stat(label: String, value: String, unit: String?) -> some View {
+    private func stat(label: LocalizedStringKey, value: String, unit: LocalizedStringKey?) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label).font(AquaTag.Typography.eyebrow).tracking(1.5)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
@@ -127,17 +128,18 @@ struct PlantDetailView: View {
     }
 
     private var wateringSection: some View {
-        card(title: "WATERING") {
+        card(title: L10n.Detail.sectionSchedule) {
             if isEditing {
-                Stepper("Water every \(plant.wateringIntervalDays) days",
-                        value: $plant.wateringIntervalDays, in: 1...30)
-                    .font(AquaTag.Typography.body)
+                Stepper(value: $plant.wateringIntervalDays, in: 1...30) {
+                    Text(L10n.Settings.defaultIntervalDays(plant.wateringIntervalDays))
+                }
+                .font(AquaTag.Typography.body)
             }
             if let lastWateredBy = plant.lastWateredBy, plant.lastWateredDate != nil {
-                labeledRow("Logged by", lastWateredBy)
+                labeledRow(L10n.Detail.loggedBy, lastWateredBy)
             }
             if plant.lastWateredDate == nil {
-                Text("Not watered yet")
+                Text(L10n.Detail.notWatered)
                     .font(AquaTag.Typography.body)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
             }
@@ -145,7 +147,7 @@ struct PlantDetailView: View {
     }
 
     private var notesSection: some View {
-        card(title: "NOTES") {
+        card(title: L10n.Detail.sectionNotes) {
             if isEditing {
                 TextEditor(text: $plant.notes)
                     .font(AquaTag.Typography.body)
@@ -160,7 +162,7 @@ struct PlantDetailView: View {
     }
 
     private var nfcSection: some View {
-        card(title: "NFC STICKER") {
+        card(title: L10n.Detail.sectionSticker) {
             Button {
                 Task {
                     isWritingTag = true
@@ -175,7 +177,7 @@ struct PlantDetailView: View {
             } label: {
                 HStack {
                     Image(systemName: "wave.3.right.circle.fill")
-                    Text("Write to sticker")
+                    Text(L10n.Detail.writeSticker)
                     Spacer()
                     if isWritingTag { ProgressView() }
                 }
@@ -186,15 +188,15 @@ struct PlantDetailView: View {
 
             if let tagID = plant.nfcTagID {
                 Divider().background(AquaTag.Colors.divider)
-                labeledRow("Tag ID", tagID, mono: true)
+                labeledRow(L10n.Detail.tagID, tagID, mono: true)
             }
         }
     }
 
     private var haSection: some View {
-        card(title: "HOME ASSISTANT") {
+        card(title: L10n.Detail.sectionHA) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Entity")
+                Text(L10n.Detail.entityLabel)
                     .font(AquaTag.Typography.micro).tracking(1)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
                 Text(plant.haEntityID)
@@ -209,7 +211,7 @@ struct PlantDetailView: View {
         Button(role: .destructive) {
             showingDeleteConfirmation = true
         } label: {
-            Label("Delete plant", systemImage: "trash")
+            Label(L10n.Detail.deletePlant, systemImage: "trash")
                 .font(AquaTag.Typography.headline)
                 .foregroundStyle(AquaTag.Colors.terracotta)
                 .frame(maxWidth: .infinity)
@@ -223,7 +225,7 @@ struct PlantDetailView: View {
     // MARK: - Building blocks
 
     @ViewBuilder
-    private func card<Content: View>(title: String,
+    private func card<Content: View>(title: LocalizedStringKey,
                                      @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.sm) {
             Text(title).font(AquaTag.Typography.eyebrow).tracking(2)
@@ -238,7 +240,7 @@ struct PlantDetailView: View {
             .strokeBorder(AquaTag.Colors.divider, lineWidth: 0.5))
     }
 
-    private func labeledRow(_ label: String, _ value: String, mono: Bool = false) -> some View {
+    private func labeledRow(_ label: LocalizedStringKey, _ value: String, mono: Bool = false) -> some View {
         HStack {
             Text(label).font(AquaTag.Typography.caption)
                 .foregroundStyle(AquaTag.Colors.inkSoft)

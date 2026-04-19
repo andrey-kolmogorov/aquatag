@@ -177,7 +177,7 @@ class PlantListViewModel {
                 timestamp: timestamp
             )
 
-            successMessage = "💧 Watered \(plant.name)!"
+            successMessage = L10n.Water.success(plantName: plant.name)
             showingSuccess = true
         } catch {
             let pendingEvent = PendingWateringEvent(
@@ -189,7 +189,7 @@ class PlantListViewModel {
             modelContext.insert(pendingEvent)
             try? modelContext.save()
 
-            successMessage = "💧 Watered \(plant.name) (saved locally)"
+            successMessage = L10n.Water.successOffline(plantName: plant.name)
             showingSuccess = true
 
             print("Failed to sync with HA: \(error.localizedDescription)")

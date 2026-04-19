@@ -41,13 +41,13 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             PlantListView(pendingPlantID: $pendingPlantID)
-                .tabItem { Label("Plants", systemImage: "leaf.fill") }
+                .tabItem { Label(L10n.Tabs.plants, systemImage: "leaf.fill") }
                 .tag(0)
             WateringHistoryView()
-                .tabItem { Label("History", systemImage: "clock.fill") }
+                .tabItem { Label(L10n.Tabs.history, systemImage: "clock.fill") }
                 .tag(1)
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gear") }
+                .tabItem { Label(L10n.Tabs.settings, systemImage: "gear") }
                 .tag(2)
         }
         .tint(AquaTag.Colors.moss)

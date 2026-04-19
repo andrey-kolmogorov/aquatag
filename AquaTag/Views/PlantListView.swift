@@ -61,15 +61,15 @@ struct PlantListView: View {
                     AddPlantView(suggestedID: id)
                 }
             }
-            .alert("Success", isPresented: Binding(
+            .alert(L10n.Plants.successTitle, isPresented: Binding(
                 get: { viewModel?.showingSuccess ?? false },
                 set: { if !$0 { viewModel?.showingSuccess = false } }
-            )) { Button("OK") { } } message: { Text(viewModel?.successMessage ?? "") }
-            .alert("Error", isPresented: Binding(
+            )) { Button(L10n.Plants.ok) { } } message: { Text(viewModel?.successMessage ?? "") }
+            .alert(L10n.Plants.errorTitle, isPresented: Binding(
                 get: { viewModel?.showingError ?? false },
                 set: { if !$0 { viewModel?.showingError = false } }
-            )) { Button("OK") { } } message: { Text(viewModel?.errorMessage ?? "") }
-            .alert("Already Watered", isPresented: Binding(
+            )) { Button(L10n.Plants.ok) { } } message: { Text(viewModel?.errorMessage ?? "") }
+            .alert(L10n.Plants.alreadyTitle, isPresented: Binding(
                 get: { viewModel?.showingWaterConfirmation ?? false },
                 set: {
                     if !$0 {
@@ -78,11 +78,11 @@ struct PlantListView: View {
                     }
                 }
             )) {
-                Button("Water Anyway") { Task { await viewModel?.confirmWatering() } }
-                Button("Skip", role: .cancel) { }
+                Button(L10n.Plants.waterAnyway) { Task { await viewModel?.confirmWatering() } }
+                Button(L10n.Plants.cancel, role: .cancel) { }
             } message: {
                 if let plant = viewModel?.plantPendingConfirmation {
-                    Text("\(plant.name) is already watered enough. Water anyway?")
+                    Text(L10n.Plants.alreadyBody(plantName: plant.name))
                 }
             }
             .onAppear {
@@ -126,11 +126,11 @@ struct PlantListView: View {
         ScrollView {
             // Hero header — eyebrow + display title
             VStack(alignment: .leading, spacing: 6) {
-                Text("NURSERY")
+                Text(L10n.Plants.headerEyebrow)
                     .font(AquaTag.Typography.eyebrow)
                     .tracking(2)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
-                Text("\(plants.count) plants")
+                Text(L10n.Plants.count(plants.count))
                     .font(AquaTag.Typography.displayL)
                     .foregroundStyle(AquaTag.Colors.ink)
             }
@@ -160,11 +160,11 @@ struct PlantListView: View {
             Spacer()
             CharacterView(character: .monty, size: .hero, showRing: false)
             VStack(spacing: AquaTag.Spacing.xs) {
-                Text("Let's plant your first one")
+                Text(L10n.Plants.emptyTitle)
                     .font(AquaTag.Typography.displayM)
                     .foregroundStyle(AquaTag.Colors.ink)
                     .multilineTextAlignment(.center)
-                Text("Tap + to add a plant, or scan an NFC sticker to get started.")
+                Text(L10n.Plants.emptyBody)
                     .font(AquaTag.Typography.body)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
                     .multilineTextAlignment(.center)
@@ -183,7 +183,7 @@ struct PlantListView: View {
             HStack(spacing: 10) {
                 Image(systemName: "wave.3.right")
                     .font(.system(size: 18, weight: .semibold))
-                Text("Scan sticker")
+                Text(L10n.Plants.scanCTA)
                     .font(AquaTag.Typography.headline)
             }
             .foregroundStyle(AquaTag.Colors.cream)
