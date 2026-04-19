@@ -1,0 +1,127 @@
+/*
+  Localizable.strings — Deutsch
+  AquaTag
+
+  Stil: per "du", freundlich, kurz. Pflanzen-Vokabular statt technischer Begriffe.
+  Keys müssen 1:1 mit en.lproj übereinstimmen.
+*/
+
+// MARK: - Tab bar (ContentView)
+"tab.plants"   = "Pflanzen";
+"tab.history"  = "Verlauf";
+"tab.settings" = "Einstellungen";
+
+// MARK: - Brand
+"brand.name" = "Aquatag";
+
+// MARK: - Plant list (PlantListView)
+"plants.header.eyebrow"          = "KINDERSTUBE";
+"plants.header.count"            = "%d Pflanzen";
+"plants.header.count.one"        = "1 Pflanze";
+"plants.empty.title"             = "Pflanzen wir deine erste";
+"plants.empty.body"              = "Tippe auf +, um eine Pflanze hinzuzufügen, oder scanne einen NFC-Sticker, um loszulegen.";
+"plants.scan.cta"                = "Sticker scannen";
+"plants.alert.error.title"       = "Fehler";
+"plants.alert.already.title"     = "Schon gegossen";
+"plants.alert.already.body"      = "%@ wurde bereits ausreichend gegossen. Trotzdem gießen?";
+"plants.alert.water.anyway"      = "Trotzdem gießen";
+"plants.alert.cancel"            = "Abbrechen";
+"plants.alert.ok"                = "OK";
+"plants.alert.success.title"     = "Erfolg";
+
+// MARK: - Plant row (PlantRowView)
+"row.last.watered"               = "Zuletzt gegossen %@";
+"row.never.watered"              = "Noch nie gegossen";
+
+// MARK: - Watering status badge
+"status.new"                     = "Neu";
+"status.overdue"                 = "%d T überfällig";
+"status.today"                   = "Heute gießen";
+"status.tomorrow"                = "Morgen";
+"status.in.days"                 = "In %d T";
+
+// MARK: - Plant detail (PlantDetailView)
+"detail.section.schedule"        = "RHYTHMUS";
+"detail.section.notes"           = "NOTIZEN";
+"detail.section.sticker"         = "NFC-STICKER";
+"detail.section.ha"              = "HOME ASSISTANT";
+"detail.section.danger"          = "GEFAHRENZONE";
+"detail.stat.every"              = "ALLE";
+"detail.stat.days"               = "Tage";
+"detail.stat.last.watered"       = "ZULETZT";
+"detail.stat.next.due"           = "NÄCHSTES";
+"detail.not.watered"             = "Noch nicht gegossen";
+"detail.write.sticker"           = "Auf Sticker schreiben";
+"detail.write.success.title"     = "Sticker beschrieben";
+"detail.write.failed.title"      = "Schreiben fehlgeschlagen";
+"detail.entity.label"            = "Entity";
+"detail.tag.id"                  = "Tag-ID";
+"detail.logged.by"               = "Gegossen von";
+"detail.toolbar.done"            = "Fertig";
+"detail.toolbar.cancel"          = "Abbrechen";
+"detail.toolbar.edit"            = "Bearbeiten";
+"detail.toolbar.save"            = "Speichern";
+"detail.delete.plant"            = "Pflanze löschen";
+"detail.delete.confirm.title"    = "Pflanze löschen?";
+"detail.delete.confirm.body"     = "%@ wird unwiderruflich gelöscht.";
+"detail.delete.action"           = "Löschen";
+
+// MARK: - Add plant (AddPlantView)
+"add.title"                      = "Pflanze hinzufügen";
+"add.toolbar.cancel"             = "Abbrechen";
+"add.toolbar.save"               = "Speichern";
+"add.section.character"          = "CHARAKTER";
+"add.section.name"               = "NAME";
+"add.section.water.every"        = "GIESSEN ALLE";
+"add.section.notes"              = "NOTIZEN";
+"add.section.ha"                 = "HOME-ASSISTANT-ENTITY";
+"add.name.placeholder"           = "z. B. Monstera am Fenster";
+"add.interval.days"              = "Tage";
+"add.ha.hint"                    = "Wird beim Speichern automatisch angelegt, sofern deine HA-Verbindung eingerichtet ist.";
+
+// MARK: - Watering history (WateringHistoryView)
+"history.eyebrow"                = "VERLAUF";
+"history.title"                  = "Gieß-Protokoll";
+"history.empty.title"            = "Noch nichts gegossen";
+"history.empty.body"             = "Scanne einen Sticker oder tippe eine Pflanze an, um den ersten Gieß-Eintrag zu speichern.";
+"history.watered.by.unknown"     = "Unbekannt";
+
+// MARK: - Settings (SettingsView)
+"settings.eyebrow"               = "EINSTELLUNGEN";
+"settings.title"                 = "Einstellungen";
+"settings.section.ha"            = "HOME ASSISTANT";
+"settings.section.ha.subtitle"   = "Optional. Gieß-Daten zwischen Geräten abgleichen.";
+"settings.field.url"             = "Nabu Casa URL";
+"settings.field.token"           = "Langfristiges Token";
+"settings.test.connection"       = "Verbindung testen";
+"settings.connected"             = "Verbunden";
+"settings.connection.failed"     = "Verbindung fehlgeschlagen";
+"settings.section.device"        = "GERÄT";
+"settings.section.device.subtitle" = "Wer gießt – nützlich in Mehrpersonen-Haushalten.";
+"settings.field.device.name"     = "Gerätename";
+"settings.section.reminders"     = "ERINNERUNGEN";
+"settings.reminders.toggle"      = "Gieß-Erinnerungen";
+"settings.reminders.time"        = "Erinnerungszeit";
+"settings.default.interval"      = "Standard-Intervall";
+"settings.default.interval.days" = "%d Tage";
+"settings.section.helpers"       = "PFLANZEN-HELFER";
+"settings.helpers.subtitle"      = "Werden automatisch in Home Assistant angelegt.";
+"settings.helpers.empty"         = "Füge deine erste Pflanze hinzu, um ihre HA-Entity zu sehen.";
+"settings.footer.version"        = "Aquatag · v1.0";
+"settings.footer.tagline"        = "Für Pflanzen gemacht.";
+
+// MARK: - Watering success banner
+"water.success"                  = "💧 %@ gegossen!";
+"water.success.offline"          = "💧 %@ gegossen (lokal gespeichert)";
+
+// MARK: - Characters — archetype + tagline per character
+"character.monty.archetype"      = "Monstera";
+"character.monty.tagline"        = "Große Blätter, größerer Durst.";
+"character.fernie.archetype"     = "Farn";
+"character.fernie.tagline"       = "Halt mich feucht, dann bin ich glücklich.";
+"character.cleo.archetype"       = "Kaktus";
+"character.cleo.tagline"         = "Vergessliche Besitzer willkommen.";
+"character.suzy.archetype"       = "Sukkulente";
+"character.suzy.tagline"         = "Ein bisschen Wasser reicht weit.";
+"character.ollie.archetype"      = "Olive / Zitrus";
+"character.ollie.tagline"        = "Mediterran und entspannt.";
