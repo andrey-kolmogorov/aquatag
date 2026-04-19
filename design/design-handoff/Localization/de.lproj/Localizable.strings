@@ -73,7 +73,13 @@
 
 // MARK: - Watering history (WateringHistoryView)
 "history.eyebrow"                = "VERLAUF";
-"history.title"                  = "Gieß-Protokoll";
+"history.eyebrow.six.weeks"      = "DIE LETZTEN SECHS WOCHEN";
+"history.title"                  = "Verlauf";
+"history.waterings"              = "GIESSEN";
+"history.day.streak"             = "TAGE IN FOLGE";
+"history.this.week"              = "DIESE WOCHE";
+"history.none.this.week"         = "Diese Woche noch nichts gegossen.";
+"history.watered.by.when.who"    = "%1$@ · %2$@";
 "history.empty.title"            = "Noch nichts gegossen";
 "history.empty.body"             = "Scanne einen Sticker oder tippe eine Pflanze an, um den ersten Gieß-Eintrag zu speichern.";
 "history.watered.by"             = "%@";

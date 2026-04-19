@@ -73,7 +73,13 @@
 
 // MARK: - Watering history (WateringHistoryView)
 "history.eyebrow"                = "HISTORY";
-"history.title"                  = "Watering log";
+"history.eyebrow.six.weeks"      = "THE LAST SIX WEEKS";
+"history.title"                  = "History";
+"history.waterings"              = "WATERINGS";
+"history.day.streak"             = "DAY STREAK";
+"history.this.week"              = "THIS WEEK";
+"history.none.this.week"         = "Nothing watered this week yet.";
+"history.watered.by.when.who"    = "%1$@ · %2$@";
 "history.empty.title"            = "No watering yet";
 "history.empty.body"             = "Scan a sticker or tap a plant to log your first watering.";
 "history.watered.by"             = "%@";

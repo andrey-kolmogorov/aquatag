@@ -182,10 +182,13 @@ The SVG artwork in the imagesets matches the 25mm sticker files from `stickers-a
 - HA entity preview card tinted moss — reassurance, not a warning
 - No more emoji grid
 
-### Watering history (`WateringHistoryView`)
-- Rows use small character, device name, relative time in moss, absolute time in mono
-- Left-aligned custom title block instead of emoji navtitle
-- Empty state centered with drop icon
+### Watering history (`WateringHistoryView`) — "Six weeks of care"
+Rebuilt to match the marketing prototype's History screen:
+- Eyebrow "THE LAST SIX WEEKS" + Fraunces display "History"
+- Big stats row: **total waterings** (terracotta) + **day streak** (ink) — uses `AquaTag.Typography.displayXL`
+- **7 × 6 heatmap** — rows are weekdays (Mon-first, locale-aware), columns are the 6 most recent weeks. Empty tiles use `divider`; watered tiles use `moss` with opacity scaling from 0.3 → 1.0 based on daily activity.
+- "THIS WEEK" list below — character avatar + plant name + relative "when · who" line + drop glyph, one row per watering in the last 7 days (max 5).
+- `heatmapBuckets(from:)` is self-contained and works off whatever `WateringEvent` stream the app produces — swap in `WateringLog` @Model results when that lands.
 
 ### Settings (`SettingsView`)
 - 4 cards: Home Assistant, Device, Reminders, Plant Helpers
