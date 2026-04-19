@@ -13,17 +13,19 @@ class Plant {
     var id: String              // unique slug e.g. "monstera"
     var name: String            // display name e.g. "Monstera Deliciosa"
     var emoji: String           // e.g. "🌿"
+    var characterID: String?    // stores Character.rawValue; nil falls back to .monty
     var wateringIntervalDays: Int  // how often to water
     var lastWateredDate: Date?
     var lastWateredBy: String?  // device name
     var notes: String
     var createdAt: Date
     var nfcTagID: String?       // raw NFC hardware UID (optional backup identifier)
-    
+
     init(
         id: String,
         name: String,
         emoji: String = "🌿",
+        characterID: String? = nil,
         wateringIntervalDays: Int = 7,
         lastWateredDate: Date? = nil,
         lastWateredBy: String? = nil,
@@ -34,6 +36,7 @@ class Plant {
         self.id = id
         self.name = name
         self.emoji = emoji
+        self.characterID = characterID
         self.wateringIntervalDays = wateringIntervalDays
         self.lastWateredDate = lastWateredDate
         self.lastWateredBy = lastWateredBy
