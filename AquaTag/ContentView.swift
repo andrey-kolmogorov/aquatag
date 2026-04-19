@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  AquaTag
+//  AquaTag — redesigned
 //
-//  Created by Andrei Kolmogorov on 05.04.26.
+//  Customises the TabBar appearance to match brand colors.
 //
 
 import SwiftUI
@@ -12,36 +12,47 @@ struct ContentView: View {
     @Binding var pendingPlantID: String?
     @State private var selectedTab = 0
 
+    init(pendingPlantID: Binding<String?>) {
+        self._pendingPlantID = pendingPlantID
+
+        // Brand the tab bar
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(AquaTag.Colors.paper)
+        appearance.shadowColor = UIColor(AquaTag.Colors.divider)
+
+        let itemAppearance = UITabBarItemAppearance()
+        itemAppearance.selected.iconColor = UIColor(AquaTag.Colors.moss)
+        itemAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor(AquaTag.Colors.moss)
+        ]
+        itemAppearance.normal.iconColor = UIColor(AquaTag.Colors.inkMute)
+        itemAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor(AquaTag.Colors.inkMute)
+        ]
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             PlantListView(pendingPlantID: $pendingPlantID)
-                .tabItem {
-                    Label("Plants", systemImage: "leaf.fill")
-                }
+                .tabItem { Label("Plants", systemImage: "leaf.fill") }
                 .tag(0)
-
             WateringHistoryView()
-                .tabItem {
-                    Label("History", systemImage: "clock.fill")
-                }
+                .tabItem { Label("History", systemImage: "clock.fill") }
                 .tag(1)
-
             SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
+                .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(2)
         }
-        .onChange(of: pendingPlantID) { _, newValue in
-            if newValue != nil {
-                selectedTab = 0
-            }
+        .tint(AquaTag.Colors.moss)
+        .onChange(of: pendingPlantID) { _, new in
+            if new != nil { selectedTab = 0 }
         }
     }
-}
-
-#Preview {
-    @Previewable @State var pendingPlantID: String? = nil
-    ContentView(pendingPlantID: $pendingPlantID)
-        .modelContainer(for: [Plant.self, AppSettings.self, PendingWateringEvent.self])
 }
