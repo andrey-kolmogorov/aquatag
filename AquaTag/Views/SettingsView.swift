@@ -17,6 +17,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: AquaTag.Spacing.lg) {
+                    heroHeader
                     haCard
                     deviceCard
                     notificationsCard
@@ -27,18 +28,8 @@ struct SettingsView: View {
                 .padding(.vertical, AquaTag.Spacing.md)
             }
             .background(AquaTag.Colors.bg.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("SETTINGS")
-                            .font(AquaTag.Typography.eyebrow).tracking(2)
-                            .foregroundStyle(AquaTag.Colors.inkSoft)
-                        Text("Preferences")
-                            .font(AquaTag.Typography.displayS)
-                            .foregroundStyle(AquaTag.Colors.ink)
-                    }
-                }
-            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 if viewModel == nil {
                     viewModel = SettingsViewModel(modelContext: modelContext)
@@ -46,6 +37,20 @@ struct SettingsView: View {
             }
             .onDisappear { viewModel?.saveSettings() }
         }
+    }
+
+    private var heroHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("SETTINGS")
+                .font(AquaTag.Typography.eyebrow)
+                .tracking(2)
+                .foregroundStyle(AquaTag.Colors.inkSoft)
+            Text("Preferences")
+                .font(AquaTag.Typography.displayL)
+                .foregroundStyle(AquaTag.Colors.ink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, AquaTag.Spacing.xs)
     }
 
     // MARK: - Cards

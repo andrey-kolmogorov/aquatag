@@ -17,19 +17,25 @@ struct WateringHistoryView: View {
                 AquaTag.Colors.bg.ignoresSafeArea()
                 if events.isEmpty { emptyState } else { content }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("HISTORY")
-                            .font(AquaTag.Typography.eyebrow).tracking(2)
-                            .foregroundStyle(AquaTag.Colors.inkSoft)
-                        Text("Watering log")
-                            .font(AquaTag.Typography.displayS)
-                            .foregroundStyle(AquaTag.Colors.ink)
-                    }
-                }
-            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+
+    private var heroHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("HISTORY")
+                .font(AquaTag.Typography.eyebrow)
+                .tracking(2)
+                .foregroundStyle(AquaTag.Colors.inkSoft)
+            Text("Watering log")
+                .font(AquaTag.Typography.displayL)
+                .foregroundStyle(AquaTag.Colors.ink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, AquaTag.Spacing.screenEdge)
+        .padding(.top, AquaTag.Spacing.xs)
+        .padding(.bottom, AquaTag.Spacing.md)
     }
 
     private var events: [WateringEvent] {
@@ -41,13 +47,14 @@ struct WateringHistoryView: View {
 
     private var content: some View {
         ScrollView {
+            heroHeader
             LazyVStack(spacing: AquaTag.Spacing.sm) {
                 ForEach(events) { event in
                     WateringHistoryRow(event: event)
                 }
             }
             .padding(.horizontal, AquaTag.Spacing.screenEdge)
-            .padding(.vertical, AquaTag.Spacing.md)
+            .padding(.bottom, AquaTag.Spacing.md)
         }
     }
 

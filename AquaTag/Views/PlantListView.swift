@@ -40,8 +40,8 @@ struct PlantListView: View {
                     .padding(.bottom, AquaTag.Spacing.md)
             }
             .navigationTitle("")  // custom header inside content
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { brandMark }
                 ToolbarItem(placement: .topBarTrailing) { toolbarRefresh }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingAddPlant = true }) {
@@ -104,22 +104,6 @@ struct PlantListView: View {
     }
 
     // MARK: - Header
-
-    private var brandMark: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(AquaTag.Colors.moss)
-                .frame(width: 24, height: 24)
-                .overlay(
-                    Image(systemName: "leaf.fill")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(AquaTag.Colors.cream)
-                )
-            Text("Aquatag")
-                .font(AquaTag.Typography.displayS)
-                .foregroundStyle(AquaTag.Colors.ink)
-        }
-    }
 
     private var toolbarRefresh: some View {
         Button {
