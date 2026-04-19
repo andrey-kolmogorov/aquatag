@@ -123,32 +123,18 @@ class PlantListViewModel {
     }
 
     func waterPlant(_ plant: Plant) async {
-        // Get settings
         let settingsDescriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(settingsDescriptor).first else {
-            errorMessage = "Settings not found. Please restart the app."
-            showingError = true
-            return
-        }
-        
-        // Get HA token from keychain
-        let token = (try? KeychainService.getHAToken()) ?? ""
-        
-        // Check if HA is configured
-        guard !settings.nabucasaURL.isEmpty,
-              !settings.deviceName.isEmpty,
-              !token.isEmpty else {
-            errorMessage = "Please configure Home Assistant in Settings first:\n• Nabu Casa URL\n• Access Token\n• Device Name"
-            showingError = true
-            return
-        }
-        
+        let settings = try? modelContext.fetch(settingsDescriptor).first
+
         let timestamp = Date()
-        
+        let deviceName = settings?.deviceName.isEmpty == false
+            ? settings!.deviceName
+            : UIDevice.current.name
+
         // Update local data immediately
         plant.lastWateredDate = timestamp
-        plant.lastWateredBy = settings.deviceName
-        
+        plant.lastWateredBy = deviceName
+
         do {
             try modelContext.save()
         } catch {
@@ -156,51 +142,56 @@ class PlantListViewModel {
             showingError = true
             return
         }
-        
-        // Schedule notification
-        if settings.notificationsEnabled {
+
+        // Schedule notification (local — no HA needed)
+        if settings?.notificationsEnabled ?? true {
             do {
                 try await NotificationService.shared.scheduleWateringReminder(
                     for: plant,
-                    preferredTime: settings.notificationTime
+                    preferredTime: settings?.notificationTime ?? Date()
                 )
             } catch {
                 print("Failed to schedule notification: \(error)")
             }
         }
-        
-        // Log to Home Assistant
+
+        // Haptic feedback
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+
+        // Sync to Home Assistant if configured
+        let token = try? KeychainService.getHAToken()
+        guard let settings, settings.isConfigured, let token, !token.isEmpty else {
+            successMessage = "💧 Watered \(plant.name)!"
+            showingSuccess = true
+            return
+        }
+
         let haService = HAService(baseURL: settings.nabucasaURL, token: token)
-        
+
         do {
             try await haService.logWatering(
                 plantID: plant.id,
                 plantName: plant.name,
-                deviceName: settings.deviceName,
+                deviceName: deviceName,
                 timestamp: timestamp
             )
-            
+
             successMessage = "💧 Watered \(plant.name)!"
             showingSuccess = true
-            
-            // Haptic feedback
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-            
         } catch {
-            // Save as pending if HA sync fails
             let pendingEvent = PendingWateringEvent(
                 plantID: plant.id,
                 plantName: plant.name,
-                deviceName: settings.deviceName,
+                deviceName: deviceName,
                 timestamp: timestamp
             )
             modelContext.insert(pendingEvent)
             try? modelContext.save()
-            
+
             successMessage = "💧 Watered \(plant.name) (saved locally)"
             showingSuccess = true
-            
+
             print("Failed to sync with HA: \(error.localizedDescription)")
         }
     }

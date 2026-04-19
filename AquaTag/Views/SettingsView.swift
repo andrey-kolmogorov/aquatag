@@ -35,7 +35,12 @@ struct SettingsView: View {
     }
     
     private var homeAssistantSection: some View {
-        Section("Home Assistant") {
+        Section("Home Assistant (Optional)") {
+            Text("Connect to Home Assistant to sync watering data across devices and trigger automations. The app works fully offline without this.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+
             TextField("Nabu Casa URL", text: Binding(
                 get: { viewModel?.nabucasaURL ?? "" },
                 set: { viewModel?.nabucasaURL = $0 }
@@ -116,7 +121,7 @@ struct SettingsView: View {
             ))
             .textContentType(.name)
             
-            Text("This name appears in Home Assistant events to identify who watered each plant")
+            Text("Identifies who watered each plant (useful for multi-person households)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -160,50 +165,26 @@ struct SettingsView: View {
     
     private var haSetupGuideSection: some View {
         Section {
-            DisclosureGroup("Home Assistant Setup") {
+            DisclosureGroup("Home Assistant Setup Guide") {
                 VStack(alignment: .leading, spacing: 16) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text("Manual Helper Creation Required")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                    
-                    Text("For each plant, create an input_datetime helper in Home Assistant:")
-                        .font(.body)
+                    Text("When you add a plant, the app automatically creates the corresponding input_datetime helper in Home Assistant via WebSocket.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Steps:")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                        
-                        Text("1. Settings → Devices & Services → Helpers")
-                            .font(.caption)
-                        Text("2. + Create Helper → Date and/or time")
-                            .font(.caption)
-                        Text("3. Enable both 'Has date' and 'Has time'")
-                            .font(.caption)
-                        Text("4. Use the entity ID shown below")
-                            .font(.caption)
-                    }
-                    .foregroundStyle(.secondary)
-                    
+
                     if !plants.isEmpty {
                         Divider()
-                        
+
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Current Plant Helpers:")
+                            Text("Plant Helpers:")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                            
+
                             ForEach(plants) { plant in
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("\(plant.emoji) \(plant.name)")
                                         .font(.caption)
                                         .fontWeight(.medium)
-                                    
+
                                     Text(plant.haEntityID)
                                         .font(.system(.caption, design: .monospaced))
                                         .foregroundStyle(.blue)
@@ -212,12 +193,11 @@ struct SettingsView: View {
                                 .padding(.vertical, 4)
                             }
                         }
-                        .padding(.top, 8)
                     }
-                    
+
                     Divider()
-                    
-                    Text("💡 Tip: Create automations triggered by the aquatag_plant_watered event for notifications, logging, or smart home actions")
+
+                    Text("Tip: Create automations triggered by the aquatag_plant_watered event for notifications, logging, or smart home actions")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
