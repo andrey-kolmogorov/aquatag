@@ -1,56 +1,52 @@
 //
 //  WateringStatusBadge.swift
-//  AquaTag
+//  AquaTag  — redesigned
 //
-//  Created by Andrei Kolmogorov on 05.04.26.
+//  Replaces the existing WateringStatusBadge. Same API (`plant: Plant`),
+//  new visual: mono eyebrow label, dot + text, rounded pill.
 //
 
 import SwiftUI
 
 struct WateringStatusBadge: View {
     let plant: Plant
-    
+
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Circle()
-                .fill(statusColor)
-                .frame(width: 8, height: 8)
-            
-            Text(statusText)
-                .font(.caption)
-                .foregroundStyle(statusColor)
+                .fill(AquaTag.Colors.status(plant.wateringStatus))
+                .frame(width: 6, height: 6)
+
+            Text(statusText.uppercased())
+                .font(AquaTag.Typography.micro)
+                .tracking(0.8)
+                .foregroundStyle(AquaTag.Colors.status(plant.wateringStatus))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(statusColor.opacity(0.15))
-        .clipShape(Capsule())
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(
+            Capsule()
+                .fill(AquaTag.Colors.status(plant.wateringStatus).opacity(0.10))
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(
+                    AquaTag.Colors.status(plant.wateringStatus).opacity(0.25),
+                    lineWidth: 0.5
+                )
+        )
     }
-    
-    private var statusColor: Color {
-        switch plant.wateringStatus {
-        case .ok:
-            return .green
-        case .dueSoon:
-            return .orange
-        case .overdue:
-            return .red
-        case .unknown:
-            return .gray
-        }
-    }
-    
+
     private var statusText: String {
         guard let daysUntil = plant.daysUntilNextWatering else {
-            return "Not watered yet"
+            return "New"
         }
-        
         if daysUntil < 0 {
-            let overdueDays = abs(daysUntil)
-            return "\(overdueDays)d overdue"
+            return "\(abs(daysUntil))d overdue"
         } else if daysUntil == 0 {
             return "Water today"
         } else if daysUntil == 1 {
-            return "Water tomorrow"
+            return "Tomorrow"
         } else {
             return "In \(daysUntil)d"
         }
