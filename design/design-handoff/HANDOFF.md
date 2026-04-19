@@ -26,7 +26,7 @@ design-handoff/
 │   └── MigrationNotes.swift       # Plant.characterID field guidance
 └── Assets.xcassets/
     ├── Colors/AT/                 # 18 branded color sets (light + dark)
-    └── Characters/AT/Character/   # 5 character SVG imagesets
+    └── Characters/AT/Character/   # 6 character SVG imagesets
 ```
 
 ---
@@ -48,7 +48,7 @@ design-handoff/
 
 4. **Bundle fonts** (see below).
 
-5. **Build & run.** First launch: existing plants show as Monty (default fallback). Edit any plant to reassign.
+5. **Build & run.** First launch: existing plants show as Monty (default fallback). Edit any plant to reassign to any of the 6 characters.
 
 ---
 
@@ -143,17 +143,18 @@ Cards use `md` (14). Large cards / row tiles use `lg` (20). Buttons + status bad
 
 ## Character system
 
-5 hero characters, each with a species archetype, hero color, and flag. Stored on `Plant.characterID` as the enum rawValue.
+**6 hero characters**, one per flag color. Each has a species archetype, hero color, flag stake color, and sticker artwork. Stored on `Plant.characterID` as the enum rawValue. Enum case order matches the kit-box layout (green → blue → yellow → red → pink → white).
 
-| Character | Species | Color | Flag | Suggested interval |
-|---|---|---|---|---|
-| Monty | Monstera | Moss | 🇲🇽 | 7 days |
-| Fernie | Fern | Teal-green | 🇳🇿 | 4 days |
-| Cleo | Cactus | Amber → dark green body | 🇺🇸 | 21 days |
-| Suzy | Succulent | Rose | 🇿🇦 | 14 days |
-| Ollie | Olive / Orchid | Purple | 🇬🇷 | 10 days |
+| # | Character | Species | Flag stake | Hex | Suggested interval |
+|---|---|---|---|---|---|
+| 1 | Monty  | Monstera              | Green  | `#2DB489` | 7 days  |
+| 2 | Fernie | Fern                  | Blue   | `#1E6AA8` | 4 days  |
+| 3 | Suzy   | Succulent             | Yellow | `#E9B82A` | 14 days |
+| 4 | Cleo   | Cactus                | Red    | `#C8201E` | 21 days |
+| 5 | Ollie  | Olive / Citrus        | Pink   | `#E8388A` | 10 days |
+| 6 | Pip    | Pilea peperomioides   | White  | `#F5F2EA` | 7 days  |
 
-The SVG artwork in the imagesets matches the 25mm sticker files in the repo's `design/stickers/` — same characters, same palette, but cleaned of print-only elements (cut guides, bleed markers).
+The SVG artwork in the imagesets matches the 25mm sticker files from `stickers-and-flags.html` — same characters, same paint-matched palette, cleaned of print-only elements (cut guides, bleed markers). Pip's artwork is unique: high-contrast dark greens with inky outlines, since the white flag demands ink-based rendering.
 
 ---
 
@@ -197,10 +198,23 @@ The SVG artwork in the imagesets matches the 25mm sticker files in the repo's `d
 
 ---
 
+## Localization — EN + DE
+
+Lives in `Localization/` and is ready to wire up:
+
+- `en.lproj/Localizable.strings` — source locale, all user-facing copy extracted from the views.
+- `de.lproj/Localizable.strings` — Deutsch translation. Tone is **du**, not Sie, matching the marketing site. Section headers stay ALL CAPS to preserve the app's visual rhythm (`KINDERSTUBE`, `RHYTHMUS`, `GIESSEN ALLE`).
+- `L10n.swift` — typed accessor so call sites stay readable (`Text(L10n.Plants.headerEyebrow)`, `L10n.Status.overdue(days: 3)`).
+- `CharacterNames.strings.md` — archetype/tagline keys for all **6** characters (Monty, Fernie, Cleo, Suzy, Ollie, Pip) in both locales. Keys are already present in `en.lproj` / `de.lproj`; doc shows how to wire `CharacterCatalog.swift` to read them. Character proper nouns stay English in both locales.
+- `README.md` — Xcode wiring, call-site patterns, plural notes, QA via scheme language override.
+
+Views in this handoff still hold English literals. Replace with `L10n.*` keys as part of PR 3, or split into PR 4 if you'd rather land the redesign and the localization pass separately.
+
+---
+
 ## What's NOT included
 
 - **App icon.** The existing `AppIcon.appiconset` is untouched. If you want a new one that matches, export the moss + leaf mark from the landing page at 1024×1024 and drop into the existing iconset. I can generate this as a follow-up.
-- **Localization.** Strings are in English inline. The marketing site has DE translations we could port — ask if you want an in-app `Localizable.strings` pass.
 - **Animations beyond tokens.** `AquaTag.Motion` defines curves; views mostly use them on the character picker selection. Can be applied liberally to sheet presentations, water button taps, etc.
 - **Dark mode review.** Color sets have dark variants, but the app hasn't been viewed end-to-end in dark mode. Eye-ball after first build.
 
@@ -211,6 +225,7 @@ The SVG artwork in the imagesets matches the 25mm sticker files in the repo's `d
 1. **PR 1 — Design system + assets.** Add `DesignSystem/`, `Assets.xcassets` additions, fonts, and the model migration. No visual changes yet (the new files aren't referenced by any view).
 2. **PR 2 — CharacterView + badge.** Replace `WateringStatusBadge.swift`, add `CharacterView.swift`, update `PlantRowView.swift`. Already produces a visible change: branded row styling.
 3. **PR 3 — Views.** Replace the 5 view files. Optional: do detail and add-plant first (most visual impact) before list and settings.
+4. **PR 4 — Localization.** Add the `Localization/` folder, register `de` on the project, and swap English literals in the views for `L10n.*` keys. Can ship alongside PR 3 if you prefer.
 
 Each PR stands alone; intermediate states still compile.
 

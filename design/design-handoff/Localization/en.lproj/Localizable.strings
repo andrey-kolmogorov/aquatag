@@ -1,6 +1,6 @@
 /*
   Localizable.strings — English (source locale)
-  AquaTag
+  AquaTag design handoff · 2025
 
   Keys are grouped by view. Values use %@ (string) or %d (integer) placeholders
   matching the SwiftUI String(localized:) call sites.
@@ -27,7 +27,6 @@
 "plants.alert.water.anyway"      = "Water anyway";
 "plants.alert.cancel"            = "Cancel";
 "plants.alert.ok"                = "OK";
-"plants.alert.success.title"     = "Success";
 
 // MARK: - Plant row (PlantRowView)
 "row.last.watered"               = "Last watered %@";
@@ -48,19 +47,12 @@
 "detail.section.danger"          = "DANGER ZONE";
 "detail.stat.every"              = "EVERY";
 "detail.stat.days"               = "days";
-"detail.stat.last.watered"       = "LAST";
-"detail.stat.next.due"           = "NEXT";
+"detail.stat.last.watered"       = "LAST WATERED";
+"detail.stat.next.due"           = "NEXT DUE";
 "detail.not.watered"             = "Not watered yet";
 "detail.write.sticker"           = "Write to sticker";
-"detail.write.success.title"     = "Tag Written";
 "detail.write.failed.title"      = "Write Failed";
 "detail.entity.label"            = "Entity";
-"detail.tag.id"                  = "Tag ID";
-"detail.logged.by"               = "Logged by";
-"detail.toolbar.done"            = "Done";
-"detail.toolbar.cancel"          = "Cancel";
-"detail.toolbar.edit"            = "Edit";
-"detail.toolbar.save"            = "Save";
 "detail.delete.plant"            = "Delete plant";
 "detail.delete.confirm.title"    = "Delete Plant?";
 "detail.delete.confirm.body"     = "This will permanently delete %@ and cannot be undone.";
@@ -84,24 +76,35 @@
 "history.title"                  = "Watering log";
 "history.empty.title"            = "No watering yet";
 "history.empty.body"             = "Scan a sticker or tap a plant to log your first watering.";
-"history.watered.by.unknown"     = "Unknown";
+"history.watered.by"             = "%@";
+
+// MARK: - Characters (archetype + tagline per character)
+// Proper nouns (Monty/Fernie/Cleo/Suzy/Ollie/Pip) stay English in both locales.
+"character.monty.archetype"   = "Monstera";
+"character.monty.tagline"     = "Big leaves, bigger drinks.";
+"character.fernie.archetype"  = "Fern";
+"character.fernie.tagline"    = "Keep me misted, keep me happy.";
+"character.cleo.archetype"    = "Cactus";
+"character.cleo.tagline"      = "Forgetful owners welcome.";
+"character.suzy.archetype"    = "Succulent";
+"character.suzy.tagline"      = "A little water goes a long way.";
+"character.ollie.archetype"   = "Olive / Citrus";
+"character.ollie.tagline"     = "Mediterranean and chill.";
+"character.pip.archetype"     = "Pilea peperomioides";
+"character.pip.tagline"       = "Round coin leaves, easy-going soul.";
 
 // MARK: - Settings (SettingsView)
 "settings.eyebrow"               = "SETTINGS";
 "settings.title"                 = "Preferences";
 "settings.section.ha"            = "HOME ASSISTANT";
-"settings.section.ha.subtitle"   = "Optional. Sync watering across devices.";
-"settings.field.url"             = "Nabu Casa URL";
-"settings.field.token"           = "Long-lived token";
+"settings.section.ha.subtitle"   = "Long-lived access token. Stays on device.";
+"settings.field.url"             = "URL";
+"settings.field.token"           = "Token";
 "settings.test.connection"       = "Test connection";
 "settings.connected"             = "Connected";
 "settings.connection.failed"     = "Connection failed";
-"settings.section.device"        = "DEVICE";
-"settings.section.device.subtitle" = "Who's watering, for multi-person homes.";
-"settings.field.device.name"     = "Device name";
 "settings.section.reminders"     = "REMINDERS";
 "settings.reminders.toggle"      = "Watering reminders";
-"settings.reminders.time"        = "Reminder time";
 "settings.default.interval"      = "Default interval";
 "settings.default.interval.days" = "%d days";
 "settings.section.helpers"       = "PLANT HELPERS";
@@ -109,26 +112,3 @@
 "settings.helpers.empty"         = "Add your first plant to see its HA entity.";
 "settings.footer.version"        = "Aquatag · v1.0";
 "settings.footer.tagline"        = "Made for plants.";
-
-// MARK: - Watering success banner
-"water.success"                  = "💧 Watered %@!";
-"water.success.offline"          = "💧 Watered %@ (saved locally)";
-
-// MARK: - Push notifications
-"notification.title"             = "%@ Time to water %@!";
-"notification.body.days.ago"     = "Last watered %d days ago";
-"notification.body.default"      = "It's time to give your plant some water";
-
-// MARK: - Characters — archetype + tagline per character
-"character.monty.archetype"      = "Monstera";
-"character.monty.tagline"        = "Big leaves, bigger drinks.";
-"character.fernie.archetype"     = "Fern";
-"character.fernie.tagline"       = "Keep me misted, keep me happy.";
-"character.cleo.archetype"       = "Cactus";
-"character.cleo.tagline"         = "Forgetful owners welcome.";
-"character.suzy.archetype"       = "Succulent";
-"character.suzy.tagline"         = "A little water goes a long way.";
-"character.ollie.archetype"      = "Olive / Citrus";
-"character.ollie.tagline"        = "Mediterranean and chill.";
-"character.pip.archetype"        = "Pilea peperomioides";
-"character.pip.tagline"          = "Round coin leaves, easy-going soul.";
