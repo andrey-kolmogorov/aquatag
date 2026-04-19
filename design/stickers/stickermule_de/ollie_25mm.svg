@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="94.49" height="94.49" viewBox="0 0 94.49 94.49">
+  <circle cx="47.24" cy="47.24" r="47.24" fill="#9b4dca"/>
+  <circle cx="47.24" cy="47.24" r="30" fill="#7a2aaa" fill-opacity="0.3"/>
+  <!-- Orchid stem -->
+  <path d="M47.24 60 Q44 48 40 38" stroke="#5a9a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Leaves -->
+  <ellipse cx="32" cy="56" rx="12" ry="6" fill="#5a9a3a" transform="rotate(-20 32 56)"/>
+  <ellipse cx="60" cy="52" rx="10" ry="5" fill="#4a8a2a" transform="rotate(15 60 52)"/>
+  <!-- Orchid petals -->
+  <ellipse cx="47.24" cy="22" rx="9" ry="13" fill="#d070f0"/>
+  <ellipse cx="47.24" cy="22" rx="9" ry="13" fill="#d070f0" transform="rotate(72 47.24 22)"/>
+  <ellipse cx="47.24" cy="22" rx="9" ry="13" fill="#c060e0" transform="rotate(144 47.24 22)"/>
+  <ellipse cx="47.24" cy="22" rx="9" ry="13" fill="#d070f0" transform="rotate(216 47.24 22)"/>
+  <ellipse cx="47.24" cy="22" rx="9" ry="13" fill="#c060e0" transform="rotate(288 47.24 22)"/>
+  <!-- Centre -->
+  <circle cx="47.24" cy="22" r="9" fill="#ffe8fa"/>
+  <circle cx="47.24" cy="22" r="5" fill="#ff80c0"/>
+  <!-- Face in flower centre -->
+  <ellipse cx="44" cy="20" rx="2.8" ry="3.2" fill="white"/>
+  <circle cx="44" cy="21" r="1.8" fill="#4a1060"/>
+  <circle cx="45" cy="19.5" r="0.7" fill="white"/>
+  <ellipse cx="50.5" cy="20" rx="2.8" ry="3.2" fill="white"/>
+  <circle cx="50.5" cy="21" r="1.8" fill="#4a1060"/>
+  <circle cx="51.5" cy="19.5" r="0.7" fill="white"/>
+  <path d="M43 25 Q47.24 29 51.5 25" stroke="#4a1060" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- Sparkles -->
+  <line x1="18" y1="18" x2="22" y2="22" stroke="#ffccff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="18" y2="22" stroke="#ffccff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="70" y1="14" x2="74" y2="18" stroke="#ffccff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="74" y1="14" x2="70" y2="18" stroke="#ffccff" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="76" cy="30" r="2" fill="#ffccff"/>
+  <!-- Name -->
+  <text x="47.24" y="76" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-weight="700" fill="white" letter-spacing="1.5">Ollie</text>
+  <!-- NFC dot -->
+  <circle cx="47.24" cy="86" r="4" fill="#6a2090"/>
+  <circle cx="47.24" cy="86" r="2" fill="#d9a0f0" fill-opacity="0.9"/>
+</svg>
