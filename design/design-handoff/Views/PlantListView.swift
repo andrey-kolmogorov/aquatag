@@ -1,0 +1,215 @@
+//
+//  PlantListView.swift
+//  AquaTag — redesigned
+//
+//  Drop-in replacement for the existing PlantListView. Same bindings
+//  and ViewModel, new visual language.
+//
+//  CHANGES FROM ORIGINAL:
+//  • Custom background (AT/BG cream) instead of default grouped List
+//  • Fraunces title ("Nursery") instead of "🌿 Plants"
+//  • Card-based rows (see redesigned PlantRowView), stacked in a scroll view
+//  • Primary scan button is a full-width moss pill pinned to the bottom
+//  • Empty state uses the hero CharacterView
+//
+
+import SwiftUI
+import SwiftData
+
+struct PlantListView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Plant.name) private var plants: [Plant]
+    @State private var viewModel: PlantListViewModel?
+    @State private var showingAddPlant = false
+    @State private var selectedPlant: Plant?
+    @Binding var pendingPlantID: String?
+
+    var body: some View {
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                AquaTag.Colors.bg.ignoresSafeArea()
+
+                if plants.isEmpty {
+                    emptyStateView
+                } else {
+                    plantList
+                }
+
+                scanButton
+                    .padding(.horizontal, AquaTag.Spacing.screenEdge)
+                    .padding(.bottom, AquaTag.Spacing.md)
+            }
+            .navigationTitle("")  // custom header inside content
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { brandMark }
+                ToolbarItem(placement: .topBarTrailing) { toolbarRefresh }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { showingAddPlant = true }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(AquaTag.Colors.ink)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddPlant) { AddPlantView() }
+            .sheet(item: $selectedPlant) { plant in PlantDetailView(plant: plant) }
+            .sheet(isPresented: Binding(
+                get: { viewModel?.showingNewPlantSheet ?? false },
+                set: { if !$0 { viewModel?.showingNewPlantSheet = false } }
+            )) {
+                if let id = viewModel?.scannedPlantID {
+                    AddPlantView(suggestedID: id)
+                }
+            }
+            .alert("Success", isPresented: Binding(
+                get: { viewModel?.showingSuccess ?? false },
+                set: { if !$0 { viewModel?.showingSuccess = false } }
+            )) { Button("OK") { } } message: { Text(viewModel?.successMessage ?? "") }
+            .alert("Error", isPresented: Binding(
+                get: { viewModel?.showingError ?? false },
+                set: { if !$0 { viewModel?.showingError = false } }
+            )) { Button("OK") { } } message: { Text(viewModel?.errorMessage ?? "") }
+            .alert("Already Watered", isPresented: Binding(
+                get: { viewModel?.showingWaterConfirmation ?? false },
+                set: {
+                    if !$0 {
+                        viewModel?.showingWaterConfirmation = false
+                        viewModel?.plantPendingConfirmation = nil
+                    }
+                }
+            )) {
+                Button("Water Anyway") { Task { await viewModel?.confirmWatering() } }
+                Button("Skip", role: .cancel) { }
+            } message: {
+                if let plant = viewModel?.plantPendingConfirmation {
+                    Text("\(plant.name) is already watered enough. Water anyway?")
+                }
+            }
+            .onAppear {
+                if viewModel == nil {
+                    viewModel = PlantListViewModel(modelContext: modelContext)
+                }
+                Task { await viewModel?.retryPendingEvents() }
+                if let plantID = pendingPlantID {
+                    pendingPlantID = nil
+                    Task { await viewModel?.handleBackgroundTag(plantID: plantID) }
+                }
+            }
+            .onChange(of: pendingPlantID) { _, newValue in
+                guard let id = newValue else { return }
+                pendingPlantID = nil
+                Task { await viewModel?.handleBackgroundTag(plantID: id) }
+            }
+        }
+    }
+
+    // MARK: - Header
+
+    private var brandMark: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(AquaTag.Colors.moss)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Image(systemName: "leaf.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(AquaTag.Colors.cream)
+                )
+            Text("Aquatag")
+                .font(AquaTag.Typography.displayS)
+                .foregroundStyle(AquaTag.Colors.ink)
+        }
+    }
+
+    private var toolbarRefresh: some View {
+        Button {
+            Task { await viewModel?.refreshFromHA() }
+        } label: {
+            if viewModel?.isRefreshing == true {
+                ProgressView()
+            } else {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(AquaTag.Colors.inkSoft)
+            }
+        }
+        .disabled(viewModel?.isRefreshing == true)
+    }
+
+    // MARK: - Content
+
+    private var plantList: some View {
+        ScrollView {
+            // Hero header — eyebrow + display title
+            VStack(alignment: .leading, spacing: 6) {
+                Text("NURSERY")
+                    .font(AquaTag.Typography.eyebrow)
+                    .tracking(2)
+                    .foregroundStyle(AquaTag.Colors.inkSoft)
+                Text("\(plants.count) plants")
+                    .font(AquaTag.Typography.displayL)
+                    .foregroundStyle(AquaTag.Colors.ink)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, AquaTag.Spacing.screenEdge)
+            .padding(.top, AquaTag.Spacing.xs)
+            .padding(.bottom, AquaTag.Spacing.md)
+
+            LazyVStack(spacing: AquaTag.Spacing.sm) {
+                ForEach(plants) { plant in
+                    Button { selectedPlant = plant } label: {
+                        PlantRowView(plant: plant) {
+                            Task { await viewModel?.waterPlantIfNeeded(plant) }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AquaTag.Spacing.screenEdge)
+            .padding(.bottom, 100)  // space for floating scan button
+        }
+        .refreshable { await viewModel?.refreshFromHA() }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: AquaTag.Spacing.lg) {
+            Spacer()
+            CharacterView(character: .monty, size: .hero, showRing: false)
+            VStack(spacing: AquaTag.Spacing.xs) {
+                Text("Let's plant your first one")
+                    .font(AquaTag.Typography.displayM)
+                    .foregroundStyle(AquaTag.Colors.ink)
+                    .multilineTextAlignment(.center)
+                Text("Tap + to add a plant, or scan an NFC sticker to get started.")
+                    .font(AquaTag.Typography.body)
+                    .foregroundStyle(AquaTag.Colors.inkSoft)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, AquaTag.Spacing.xl)
+            }
+            Spacer()
+        }
+    }
+
+    // MARK: - Scan FAB
+
+    private var scanButton: some View {
+        Button {
+            Task { await viewModel?.scanNFCTag() }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "wave.3.right")
+                    .font(.system(size: 18, weight: .semibold))
+                Text("Scan sticker")
+                    .font(AquaTag.Typography.headline)
+            }
+            .foregroundStyle(AquaTag.Colors.cream)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(
+                Capsule().fill(AquaTag.Colors.moss)
+            )
+            .atShadow(AquaTag.Shadow.raised)
+        }
+        .buttonStyle(.plain)
+    }
+}
