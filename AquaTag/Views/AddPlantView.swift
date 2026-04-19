@@ -35,15 +35,15 @@ struct AddPlantView: View {
                 .padding(.vertical, AquaTag.Spacing.md)
             }
             .background(AquaTag.Colors.bg.ignoresSafeArea())
-            .navigationTitle("Add plant")
+            .navigationTitle(L10n.Add.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Add.cancel) { dismiss() }
                         .foregroundStyle(AquaTag.Colors.inkSoft)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { savePlant() }
+                    Button(L10n.Add.save) { savePlant() }
                         .foregroundStyle(name.isEmpty ? AquaTag.Colors.inkMute : AquaTag.Colors.moss)
                         .fontWeight(.semibold)
                         .disabled(name.isEmpty)
@@ -67,7 +67,7 @@ struct AddPlantView: View {
 
     private var characterPicker: some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.sm) {
-            Text("CHARACTER")
+            Text(L10n.Add.sectionCharacter)
                 .font(AquaTag.Typography.eyebrow).tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
 
@@ -112,9 +112,9 @@ struct AddPlantView: View {
 
     private var nameField: some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.xs) {
-            Text("NAME").font(AquaTag.Typography.eyebrow).tracking(2)
+            Text(L10n.Add.sectionName).font(AquaTag.Typography.eyebrow).tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
-            TextField("e.g. Monstera by the window", text: $name)
+            TextField(L10n.Add.namePlaceholder, text: $name)
                 .font(AquaTag.Typography.body)
                 .padding(AquaTag.Spacing.md)
                 .background(RoundedRectangle(cornerRadius: AquaTag.Radius.md, style: .continuous)
@@ -126,14 +126,14 @@ struct AddPlantView: View {
 
     private var intervalField: some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.xs) {
-            Text("WATER EVERY").font(AquaTag.Typography.eyebrow).tracking(2)
+            Text(L10n.Add.sectionEvery).font(AquaTag.Typography.eyebrow).tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
             Stepper(value: $wateringIntervalDays, in: 1...30) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(wateringIntervalDays)")
                         .font(AquaTag.Typography.displayS)
                         .foregroundStyle(AquaTag.Colors.ink)
-                    Text("days")
+                    Text(L10n.Add.intervalDays)
                         .font(AquaTag.Typography.body)
                         .foregroundStyle(AquaTag.Colors.inkSoft)
                 }
@@ -149,7 +149,7 @@ struct AddPlantView: View {
 
     private var notesField: some View {
         VStack(alignment: .leading, spacing: AquaTag.Spacing.xs) {
-            Text("NOTES").font(AquaTag.Typography.eyebrow).tracking(2)
+            Text(L10n.Add.sectionNotes).font(AquaTag.Typography.eyebrow).tracking(2)
                 .foregroundStyle(AquaTag.Colors.inkSoft)
             TextEditor(text: $notes)
                 .font(AquaTag.Typography.body)
@@ -169,14 +169,14 @@ struct AddPlantView: View {
                 Image(systemName: "info.circle.fill")
                     .font(.system(size: 12))
                     .foregroundStyle(AquaTag.Colors.moss)
-                Text("HOME ASSISTANT ENTITY").font(AquaTag.Typography.eyebrow).tracking(2)
+                Text(L10n.Add.sectionHA).font(AquaTag.Typography.eyebrow).tracking(2)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
             }
             Text(generatedEntityID)
                 .font(AquaTag.Typography.mono)
                 .foregroundStyle(AquaTag.Colors.moss)
                 .textSelection(.enabled)
-            Text("Auto-created on save if your HA connection is configured.")
+            Text(L10n.Add.haHint)
                 .font(AquaTag.Typography.caption)
                 .foregroundStyle(AquaTag.Colors.inkMute)
         }

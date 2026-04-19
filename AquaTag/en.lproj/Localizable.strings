@@ -114,6 +114,11 @@
 "water.success"                  = "💧 Watered %@!";
 "water.success.offline"          = "💧 Watered %@ (saved locally)";
 
+// MARK: - Push notifications
+"notification.title"             = "%@ Time to water %@!";
+"notification.body.days.ago"     = "Last watered %d days ago";
+"notification.body.default"      = "It's time to give your plant some water";
+
 // MARK: - Characters — archetype + tagline per character
 "character.monty.archetype"      = "Monstera";
 "character.monty.tagline"        = "Big leaves, bigger drinks.";

@@ -17,7 +17,8 @@ struct WateringStatusBadge: View {
                 .fill(AquaTag.Colors.status(plant.wateringStatus))
                 .frame(width: 6, height: 6)
 
-            Text(statusText.uppercased())
+            Text(statusText)
+                .textCase(.uppercase)
                 .font(AquaTag.Typography.micro)
                 .tracking(0.8)
                 .foregroundStyle(AquaTag.Colors.status(plant.wateringStatus))
@@ -39,16 +40,16 @@ struct WateringStatusBadge: View {
 
     private var statusText: String {
         guard let daysUntil = plant.daysUntilNextWatering else {
-            return "New"
+            return String(localized: "status.new")
         }
         if daysUntil < 0 {
-            return "\(abs(daysUntil))d overdue"
+            return L10n.Status.overdue(days: abs(daysUntil))
         } else if daysUntil == 0 {
-            return "Water today"
+            return String(localized: "status.today")
         } else if daysUntil == 1 {
-            return "Tomorrow"
+            return String(localized: "status.tomorrow")
         } else {
-            return "In \(daysUntil)d"
+            return L10n.Status.inDays(daysUntil)
         }
     }
 }
