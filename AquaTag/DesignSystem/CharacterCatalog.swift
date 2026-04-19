@@ -39,11 +39,11 @@ enum Character: String, CaseIterable, Identifiable, Codable {
     /// Species / archetype the character represents.
     var archetype: String {
         switch self {
-        case .monty:   return "Monstera"
-        case .fernie:  return "Fern"
-        case .cleo:    return "Cactus"
-        case .suzy:    return "Succulent"
-        case .ollie:   return "Olive / Citrus"
+        case .monty:   return String(localized: "character.monty.archetype")
+        case .fernie:  return String(localized: "character.fernie.archetype")
+        case .cleo:    return String(localized: "character.cleo.archetype")
+        case .suzy:    return String(localized: "character.suzy.archetype")
+        case .ollie:   return String(localized: "character.ollie.archetype")
         }
     }
 
@@ -90,11 +90,11 @@ enum Character: String, CaseIterable, Identifiable, Codable {
     /// Copy shown on the character picker card.
     var tagline: String {
         switch self {
-        case .monty:   return "Big leaves, bigger drinks."
-        case .fernie:  return "Keep me misted, keep me happy."
-        case .cleo:    return "Forgetful owners welcome."
-        case .suzy:    return "A little water goes a long way."
-        case .ollie:   return "Mediterranean and chill."
+        case .monty:   return String(localized: "character.monty.tagline")
+        case .fernie:  return String(localized: "character.fernie.tagline")
+        case .cleo:    return String(localized: "character.cleo.tagline")
+        case .suzy:    return String(localized: "character.suzy.tagline")
+        case .ollie:   return String(localized: "character.ollie.tagline")
         }
     }
 }
