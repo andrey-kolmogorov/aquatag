@@ -91,6 +91,7 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
 			);
 			mainGroup = 7570A0352F828B4600570C61;
 			minimizedProjectReferenceProxies = 1;
@@ -257,7 +258,7 @@
 				DEVELOPMENT_TEAM = H4YMGWY9LC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AquaTag-Info.plist;
+				INFOPLIST_FILE = "AquaTag-Info.plist";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "Scan NFC tags on your plant pots to log watering with AquaTag";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -292,7 +293,7 @@
 				DEVELOPMENT_TEAM = H4YMGWY9LC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AquaTag-Info.plist;
+				INFOPLIST_FILE = "AquaTag-Info.plist";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "Scan NFC tags on your plant pots to log watering with AquaTag";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
