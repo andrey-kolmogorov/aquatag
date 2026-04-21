@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="147.40" height="147.40" viewBox="0 0 147.40 147.40">
+  <defs><clipPath id="fc"><circle cx="73.70" cy="73.70" r="73.70"/></clipPath></defs>
+  <!-- Darker teal — stronger contrast against pink stake -->
+  <circle cx="73.70" cy="73.70" r="73.70" fill="#085050"/>
+  <circle cx="73.70" cy="73.70" r="60" fill="#106060" fill-opacity="0.35"/>
+
+  <!-- Three frond stems -->
+  <path d="M73.70 108 Q73.70 74 73.70 20" stroke="#20c070" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M73.70 100 Q46 72 20 44" stroke="#20c070" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M73.70 100 Q101 72 127 44" stroke="#20c070" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Left frond leaflets -->
+  <ellipse cx="38" cy="58" rx="16" ry="7" fill="#20c070" transform="rotate(-46 38 58)"/>
+  <ellipse cx="52" cy="74" rx="14" ry="6" fill="#28d880" transform="rotate(-36 52 74)"/>
+  <ellipse cx="64" cy="87" rx="12" ry="5.5" fill="#20c070" transform="rotate(-24 64 87)"/>
+  <!-- Right frond leaflets -->
+  <ellipse cx="109" cy="58" rx="16" ry="7" fill="#28d880" transform="rotate(46 109 58)"/>
+  <ellipse cx="95" cy="74" rx="14" ry="6" fill="#20c070" transform="rotate(36 95 74)"/>
+  <ellipse cx="83" cy="87" rx="12" ry="5.5" fill="#28d880" transform="rotate(24 83 87)"/>
+  <!-- Centre frond leaflets -->
+  <ellipse cx="58" cy="42" rx="14" ry="6" fill="#20c070" transform="rotate(-18 58 42)"/>
+  <ellipse cx="89" cy="42" rx="14" ry="6" fill="#28d880" transform="rotate(18 89 42)"/>
+  <ellipse cx="58" cy="60" rx="12" ry="5" fill="#28d880" transform="rotate(-12 58 60)"/>
+  <ellipse cx="89" cy="60" rx="12" ry="5" fill="#20c070" transform="rotate(12 89 60)"/>
+
+  <!-- Sleepy face at top of stem -->
+  <ellipse cx="63" cy="19" rx="9" ry="9.5" fill="white"/>
+  <circle cx="63" cy="21" r="5.5" fill="#061818"/>
+  <ellipse cx="84" cy="19" rx="9" ry="9.5" fill="white"/>
+  <circle cx="84" cy="21" r="5.5" fill="#061818"/>
+  <!-- Droopy lids -->
+  <path d="M55 14 Q63 11 71 14" stroke="#061818" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M76 14 Q84 11 92 14" stroke="#061818" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Sleepy smile -->
+  <path d="M61 28 Q73.70 37 86 28" stroke="#061818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
+  <text x="73.70" y="122" text-anchor="middle" font-family="Georgia,serif" font-size="15.5" font-weight="700" fill="white" letter-spacing="1">Fernie</text>
+  <circle cx="73.70" cy="137" r="5" fill="#041a1a"/>
+  <circle cx="73.70" cy="137" r="3" fill="#70e8e8" fill-opacity="0.9"/>
+</svg>
