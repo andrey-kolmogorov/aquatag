@@ -6,16 +6,16 @@
   <circle cx="50" cy="50" r="50" fill="#c8201e"/>
   <g>
     <circle cx="50" cy="50" r="32" fill="#7e0e0c" fill-opacity="0.35"/>
-    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#a0181a"/>
-    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#b82028" transform="rotate(45 50 38)"/>
-    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#8a1012" transform="rotate(90 50 38)"/>
-    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#a0181a" transform="rotate(135 50 38)"/>
-    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#d02830" transform="rotate(22.5 50 38)"/>
-    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#b82028" transform="rotate(67.5 50 38)"/>
-    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#d02830" transform="rotate(112.5 50 38)"/>
-    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#b82028" transform="rotate(157.5 50 38)"/>
-    <circle cx="50" cy="38" r="13" fill="#e85050"/>
-    <circle cx="50" cy="38" r="8" fill="#fba0a0"/>
+    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#f2cdc4"/>
+    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#f8dcd4" transform="rotate(45 50 38)"/>
+    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#e8b8ad" transform="rotate(90 50 38)"/>
+    <ellipse cx="50" cy="30" rx="22" ry="10" fill="#f2cdc4" transform="rotate(135 50 38)"/>
+    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#fbe6df" transform="rotate(22.5 50 38)"/>
+    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#f5d3c9" transform="rotate(67.5 50 38)"/>
+    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#fbe6df" transform="rotate(112.5 50 38)"/>
+    <ellipse cx="50" cy="33" rx="17" ry="8" fill="#f5d3c9" transform="rotate(157.5 50 38)"/>
+    <circle cx="50" cy="38" r="13" fill="#fff3ee"/>
+    <circle cx="50" cy="38" r="8" fill="#f8a89c"/>
     <ellipse cx="46.5" cy="36" rx="3" ry="3.5" fill="white"/>
     <circle cx="46.5" cy="37" r="1.9" fill="#3a0606"/>
     <circle cx="47.5" cy="35.5" r="0.7" fill="white"/>
