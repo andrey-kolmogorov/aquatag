@@ -43,8 +43,8 @@ struct ContentView: View {
             PlantListView(pendingPlantID: $pendingPlantID)
                 .tabItem { Label(L10n.Tabs.plants, systemImage: "leaf.fill") }
                 .tag(0)
-            WateringHistoryView()
-                .tabItem { Label(L10n.Tabs.history, systemImage: "clock.fill") }
+            CalendarView()
+                .tabItem { Label(L10n.Tabs.calendar, systemImage: "calendar") }
                 .tag(1)
             SettingsView()
                 .tabItem { Label(L10n.Tabs.settings, systemImage: "gear") }

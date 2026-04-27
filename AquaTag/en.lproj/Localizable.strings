@@ -8,7 +8,7 @@
 
 // MARK: - Tab bar (ContentView)
 "tab.plants"   = "Plants";
-"tab.history"  = "History";
+"tab.calendar" = "Calendar";
 "tab.settings" = "Settings";
 
 // MARK: - Brand
@@ -78,18 +78,18 @@
 "add.interval.days"              = "days";
 "add.ha.hint"                    = "Auto-created on save if your HA connection is configured.";
 
-// MARK: - Watering history (WateringHistoryView)
-"history.eyebrow"                = "HISTORY";
-"history.eyebrow.six.weeks"      = "THE LAST SIX WEEKS";
-"history.title"                  = "History";
-"history.waterings"              = "WATERINGS";
-"history.day.streak"             = "DAYS ACTIVE";
-"history.this.week"              = "THIS WEEK";
-"history.none.this.week"         = "Nothing watered this week yet.";
-"history.empty.title"            = "No watering yet";
-"history.empty.body"             = "Scan a sticker or tap a plant to log your first watering.";
-"history.watered.by.unknown"     = "Unknown";
-"history.watered.by.when.who"    = "%1$@ · %2$@";
+// MARK: - Calendar (CalendarView)
+"calendar.eyebrow"               = "CALENDAR";
+"calendar.title"                 = "Calendar";
+"calendar.today"                 = "Today";
+"calendar.no.events"             = "Nothing scheduled";
+"calendar.scheduled.label"       = "SCHEDULED";
+"calendar.actual.label"          = "WATERED";
+"calendar.future.tagline"        = "Every %1$d days · last %2$@";
+"calendar.empty.title"           = "No watering yet";
+"calendar.empty.body"            = "Scan a sticker or tap a plant to log your first watering.";
+"calendar.watered.by.unknown"    = "Unknown";
+"calendar.watered.by.when.who"   = "%1$@ · %2$@";
 
 // MARK: - Settings (SettingsView)
 "settings.eyebrow"               = "SETTINGS";

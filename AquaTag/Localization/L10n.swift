@@ -19,7 +19,7 @@ enum L10n {
     // MARK: Tabs
     enum Tabs {
         static let plants   = LocalizedStringKey("tab.plants")
-        static let history  = LocalizedStringKey("tab.history")
+        static let calendar = LocalizedStringKey("tab.calendar")
         static let settings = LocalizedStringKey("tab.settings")
     }
 
@@ -122,22 +122,27 @@ enum L10n {
         static let haHint           = LocalizedStringKey("add.ha.hint")
     }
 
-    // MARK: History
-    enum History {
-        static let eyebrow         = LocalizedStringKey("history.eyebrow")
-        static let eyebrowSixWeeks = LocalizedStringKey("history.eyebrow.six.weeks")
-        static let title           = LocalizedStringKey("history.title")
-        static let waterings       = LocalizedStringKey("history.waterings")
-        static let dayStreak       = LocalizedStringKey("history.day.streak")
-        static let thisWeek        = LocalizedStringKey("history.this.week")
-        static let noneThisWeek    = LocalizedStringKey("history.none.this.week")
-        static let emptyTitle      = LocalizedStringKey("history.empty.title")
-        static let emptyBody       = LocalizedStringKey("history.empty.body")
-        static let unknownWaterer  = LocalizedStringKey("history.watered.by.unknown")
+    // MARK: Calendar
+    enum Calendar {
+        static let eyebrow         = LocalizedStringKey("calendar.eyebrow")
+        static let title           = LocalizedStringKey("calendar.title")
+        static let today           = LocalizedStringKey("calendar.today")
+        static let noEvents        = LocalizedStringKey("calendar.no.events")
+        static let scheduledLabel  = LocalizedStringKey("calendar.scheduled.label")
+        static let actualLabel     = LocalizedStringKey("calendar.actual.label")
+        static let emptyTitle      = LocalizedStringKey("calendar.empty.title")
+        static let emptyBody       = LocalizedStringKey("calendar.empty.body")
+        static let unknownWaterer  = LocalizedStringKey("calendar.watered.by.unknown")
 
-        /// Positional substitution — order is preserved across locales.
+        /// "Every N days · last <date>" tagline shown for predicted (future)
+        /// scheduled waterings in the day-detail panel.
+        static func futureTagline(intervalDays: Int, lastWatered: String) -> String {
+            String(format: String(localized: "calendar.future.tagline"), intervalDays, lastWatered)
+        }
+
+        /// "<relative time> · <device>" subtitle for past actual waterings.
         static func wateredBy(when: String, who: String) -> String {
-            String(format: String(localized: "history.watered.by.when.who"), when, who)
+            String(format: String(localized: "calendar.watered.by.when.who"), when, who)
         }
     }
 
