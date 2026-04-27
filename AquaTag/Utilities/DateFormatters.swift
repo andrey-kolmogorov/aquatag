@@ -44,6 +44,22 @@ struct DateFormatters {
         formatter.setLocalizedDateFormatFromTemplate("d MMM")
         return formatter
     }()
+
+    // Full month name + year, locale-aware. en-US "April 2026" / de-DE "April 2026".
+    // Used as the calendar header.
+    static let monthYear: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
+        return formatter
+    }()
+
+    // Weekday + day + full month, locale-aware. en-US "Monday, April 27" /
+    // de-DE "Montag, 27. April". Used as the day-detail eyebrow.
+    static let weekdayDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM")
+        return formatter
+    }()
     
     // Date and time formatter (e.g., "Apr 5, 2026 at 2:30 PM")
     static let dateTime: DateFormatter = {

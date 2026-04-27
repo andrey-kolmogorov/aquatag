@@ -8,7 +8,7 @@
 
 // MARK: - Tab bar (ContentView)
 "tab.plants"   = "Pflanzen";
-"tab.history"  = "Verlauf";
+"tab.calendar" = "Kalender";
 "tab.settings" = "Einstellungen";
 
 // MARK: - Brand
@@ -78,18 +78,18 @@
 "add.interval.days"              = "Tage";
 "add.ha.hint"                    = "Wird beim Speichern automatisch angelegt, sofern deine HA-Verbindung eingerichtet ist.";
 
-// MARK: - Watering history (WateringHistoryView)
-"history.eyebrow"                = "VERLAUF";
-"history.eyebrow.six.weeks"      = "DIE LETZTEN SECHS WOCHEN";
-"history.title"                  = "Verlauf";
-"history.waterings"              = "GIESSEN";
-"history.day.streak"             = "AKTIVE TAGE";
-"history.this.week"              = "DIESE WOCHE";
-"history.none.this.week"         = "Diese Woche noch nichts gegossen.";
-"history.empty.title"            = "Noch nichts gegossen";
-"history.empty.body"             = "Scanne einen Sticker oder tippe eine Pflanze an, um den ersten Gieß-Eintrag zu speichern.";
-"history.watered.by.unknown"     = "Unbekannt";
-"history.watered.by.when.who"    = "%1$@ · %2$@";
+// MARK: - Calendar (CalendarView)
+"calendar.eyebrow"               = "KALENDER";
+"calendar.title"                 = "Kalender";
+"calendar.today"                 = "Heute";
+"calendar.no.events"             = "Nichts geplant";
+"calendar.scheduled.label"       = "GEPLANT";
+"calendar.actual.label"          = "GEGOSSEN";
+"calendar.future.tagline"        = "Alle %1$d Tage · zuletzt %2$@";
+"calendar.empty.title"           = "Noch nichts gegossen";
+"calendar.empty.body"            = "Scanne einen Sticker oder tippe eine Pflanze an, um den ersten Gieß-Eintrag zu speichern.";
+"calendar.watered.by.unknown"    = "Unbekannt";
+"calendar.watered.by.when.who"   = "%1$@ · %2$@";
 
 // MARK: - Settings (SettingsView)
 "settings.eyebrow"               = "EINSTELLUNGEN";
