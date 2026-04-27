@@ -22,6 +22,9 @@ struct SettingsView: View {
                     deviceCard
                     notificationsCard
                     plantHelpersCard
+                    #if DEBUG
+                    debugSeedCard
+                    #endif
                     footer
                 }
                 .padding(.horizontal, AquaTag.Spacing.screenEdge)
@@ -177,6 +180,41 @@ struct SettingsView: View {
             }
         }
     }
+
+    #if DEBUG
+    private var debugSeedCard: some View {
+        card(title: "DEBUG · SAMPLE DATA",
+             subtitle: "Only available in debug builds. Used for screenshots and visual QA.") {
+            VStack(spacing: AquaTag.Spacing.sm) {
+                Button {
+                    DebugSeed.seed(into: modelContext)
+                } label: {
+                    Label("Seed sample data", systemImage: "wand.and.stars")
+                        .font(AquaTag.Typography.headline)
+                        .foregroundStyle(AquaTag.Colors.moss)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(RoundedRectangle(cornerRadius: AquaTag.Radius.md)
+                            .strokeBorder(AquaTag.Colors.moss, lineWidth: 1.5))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    DebugSeed.wipe(in: modelContext)
+                } label: {
+                    Label("Wipe all plants and history", systemImage: "trash")
+                        .font(AquaTag.Typography.headline)
+                        .foregroundStyle(AquaTag.Colors.terracotta)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(RoundedRectangle(cornerRadius: AquaTag.Radius.md)
+                            .strokeBorder(AquaTag.Colors.terracotta, lineWidth: 1.5))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+    #endif
 
     private var footer: some View {
         VStack(spacing: 4) {

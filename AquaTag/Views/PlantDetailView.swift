@@ -98,12 +98,12 @@ struct PlantDetailView: View {
             stat(label: L10n.Detail.statEvery, value: "\(plant.wateringIntervalDays)", unit: L10n.Detail.statDays)
             stat(
                 label: L10n.Detail.statLast,
-                value: plant.lastWateredDate.map { DateFormatters.short.string(from: $0) } ?? "—",
+                value: plant.lastWateredDate.map { DateFormatters.dayMonth.string(from: $0) } ?? "—",
                 unit: nil
             )
             stat(
                 label: L10n.Detail.statNext,
-                value: plant.nextWateringDate.map { DateFormatters.short.string(from: $0) } ?? "—",
+                value: plant.nextWateringDate.map { DateFormatters.dayMonth.string(from: $0) } ?? "—",
                 unit: nil
             )
         }
@@ -115,6 +115,8 @@ struct PlantDetailView: View {
                 .foregroundStyle(AquaTag.Colors.inkSoft)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(value).font(AquaTag.Typography.displayS).foregroundStyle(AquaTag.Colors.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                 if let unit { Text(unit).font(AquaTag.Typography.caption)
                     .foregroundStyle(AquaTag.Colors.inkSoft) }
             }

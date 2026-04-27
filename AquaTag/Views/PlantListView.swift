@@ -18,11 +18,16 @@ import SwiftData
 
 struct PlantListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.horizontalSizeClass) private var hSizeClass
     @Query(sort: \Plant.name) private var plants: [Plant]
     @State private var viewModel: PlantListViewModel?
     @State private var showingAddPlant = false
     @State private var selectedPlant: Plant?
     @Binding var pendingPlantID: String?
+
+    /// Two-column grid in regular width (iPad / iPhone Pro Max landscape),
+    /// single column in compact (most iPhone portrait orientations).
+    private var isWide: Bool { hSizeClass == .regular }
 
     var body: some View {
         NavigationStack {
@@ -35,9 +40,11 @@ struct PlantListView: View {
                     plantList
                 }
 
-                scanButton
-                    .padding(.horizontal, AquaTag.Spacing.screenEdge)
-                    .padding(.bottom, AquaTag.Spacing.md)
+                if !isWide {
+                    scanButton
+                        .padding(.horizontal, AquaTag.Spacing.screenEdge)
+                        .padding(.bottom, AquaTag.Spacing.md)
+                }
             }
             .navigationTitle("")  // custom header inside content
             .navigationBarTitleDisplayMode(.inline)
@@ -122,37 +129,64 @@ struct PlantListView: View {
 
     // MARK: - Content
 
+    /// Most-urgent first: overdue → due today → tomorrow → due in N days →
+    /// never watered (no schedule yet) at the bottom. Ties broken by name.
+    private var sortedPlants: [Plant] {
+        plants.sorted { a, b in
+            let aDays = a.daysUntilNextWatering ?? Int.max
+            let bDays = b.daysUntilNextWatering ?? Int.max
+            if aDays != bDays { return aDays < bDays }
+            return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+        }
+    }
+
     private var plantList: some View {
         ScrollView {
-            // Hero header — eyebrow + display title
-            VStack(alignment: .leading, spacing: 6) {
-                Text(L10n.Plants.headerEyebrow)
-                    .font(AquaTag.Typography.eyebrow)
-                    .tracking(2)
-                    .foregroundStyle(AquaTag.Colors.inkSoft)
-                Text(L10n.Plants.count(plants.count))
-                    .font(AquaTag.Typography.displayL)
-                    .foregroundStyle(AquaTag.Colors.ink)
+            // Hero header — eyebrow + display title.
+            // In wide layouts the inline Scan CTA replaces the floating FAB.
+            HStack(alignment: .lastTextBaseline) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.Plants.headerEyebrow)
+                        .font(AquaTag.Typography.eyebrow)
+                        .tracking(2)
+                        .foregroundStyle(AquaTag.Colors.inkSoft)
+                    Text(L10n.Plants.count(plants.count))
+                        .font(AquaTag.Typography.displayL)
+                        .foregroundStyle(AquaTag.Colors.ink)
+                }
+                Spacer()
+                if isWide {
+                    inlineScanButton
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, AquaTag.Spacing.screenEdge)
             .padding(.top, AquaTag.Spacing.xs)
             .padding(.bottom, AquaTag.Spacing.md)
 
-            LazyVStack(spacing: AquaTag.Spacing.sm) {
-                ForEach(plants) { plant in
-                    Button { selectedPlant = plant } label: {
-                        PlantRowView(plant: plant) {
-                            Task { await viewModel?.waterPlantIfNeeded(plant) }
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, AquaTag.Spacing.screenEdge)
-            .padding(.bottom, 100)  // space for floating scan button
+            plantGrid
+                .padding(.horizontal, AquaTag.Spacing.screenEdge)
+                .padding(.bottom, isWide ? AquaTag.Spacing.xl : 100)
         }
         .refreshable { await viewModel?.refreshFromHA() }
+    }
+
+    @ViewBuilder
+    private var plantGrid: some View {
+        let columns: [GridItem] = isWide
+            ? [GridItem(.flexible(), spacing: AquaTag.Spacing.sm),
+               GridItem(.flexible(), spacing: AquaTag.Spacing.sm)]
+            : [GridItem(.flexible())]
+
+        LazyVGrid(columns: columns, spacing: AquaTag.Spacing.sm) {
+            ForEach(sortedPlants) { plant in
+                Button { selectedPlant = plant } label: {
+                    PlantRowView(plant: plant) {
+                        Task { await viewModel?.waterPlantIfNeeded(plant) }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private var emptyStateView: some View {
@@ -193,6 +227,27 @@ struct PlantListView: View {
                 Capsule().fill(AquaTag.Colors.moss)
             )
             .atShadow(AquaTag.Shadow.raised)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Compact, content-width variant of the scan CTA used in wide layouts
+    /// where it sits next to the "N plants" header instead of overlaying
+    /// the list as a floating button.
+    private var inlineScanButton: some View {
+        Button {
+            Task { await viewModel?.scanNFCTag() }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "wave.3.right")
+                    .font(.system(size: 15, weight: .semibold))
+                Text(L10n.Plants.scanCTA)
+                    .font(AquaTag.Typography.subhead)
+            }
+            .foregroundStyle(AquaTag.Colors.cream)
+            .padding(.horizontal, 18)
+            .frame(height: 44)
+            .background(Capsule().fill(AquaTag.Colors.moss))
         }
         .buttonStyle(.plain)
     }

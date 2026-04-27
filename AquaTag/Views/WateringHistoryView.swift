@@ -25,6 +25,7 @@ import SwiftData
 
 struct WateringHistoryView: View {
     @Query(sort: \Plant.lastWateredDate, order: .reverse) private var plants: [Plant]
+    @Query(sort: \WateringLog.timestamp, order: .reverse) private var logs: [WateringLog]
 
     var body: some View {
         NavigationStack {
@@ -104,6 +105,7 @@ struct WateringHistoryView: View {
     /// across all plants.
     private var heatmap: some View {
         let grid = heatmapBuckets(from: events)
+        let today = todayCell
         return VStack(spacing: 6) {
             ForEach(Array(weekdayLabels.enumerated()), id: \.offset) { rowIdx, label in
                 HStack(spacing: 8) {
@@ -114,13 +116,27 @@ struct WateringHistoryView: View {
 
                     ForEach(0..<6, id: \.self) { colIdx in
                         let count = grid[rowIdx][colIdx]
+                        let isToday = rowIdx == today.row && colIdx == today.col
                         RoundedRectangle(cornerRadius: 5, style: .continuous)
                             .fill(tileColor(count: count))
                             .aspectRatio(1, contentMode: .fit)
+                            .overlay {
+                                if isToday {
+                                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                        .strokeBorder(AquaTag.Colors.terracotta, lineWidth: 2)
+                                }
+                            }
                     }
                 }
             }
         }
+    }
+
+    /// Today's position in the 7×6 grid. The window always ends today, so the
+    /// column is the rightmost (5); the row is today's weekday with Monday=0.
+    private var todayCell: (row: Int, col: Int) {
+        let iosWeekday = Calendar.current.component(.weekday, from: Date())
+        return (row: (iosWeekday + 5) % 7, col: 5)
     }
 
     private func tileColor(count: Int) -> Color {
@@ -174,26 +190,44 @@ struct WateringHistoryView: View {
     // MARK: Derived data
 
     private var events: [WateringEvent] {
-        plants.compactMap { p in
+        let plantsByID = Dictionary(uniqueKeysWithValues: plants.map { ($0.id, $0) })
+        let unknown = String(localized: "history.watered.by.unknown")
+
+        if !logs.isEmpty {
+            return logs.compactMap { log in
+                guard let plant = plantsByID[log.plantID] else { return nil }
+                return WateringEvent(
+                    plant: plant,
+                    timestamp: log.timestamp,
+                    wateredBy: log.wateredBy ?? unknown
+                )
+            }
+        }
+
+        // Fallback for stores that pre-date WateringLog: derive a single
+        // event per plant from `lastWateredDate` so existing users still see
+        // their most recent watering before the next one populates the log.
+        return plants.compactMap { p in
             guard let t = p.lastWateredDate else { return nil }
-            return WateringEvent(plant: p, timestamp: t, wateredBy: p.lastWateredBy ?? String(localized: "history.watered.by.unknown"))
+            return WateringEvent(plant: p, timestamp: t, wateredBy: p.lastWateredBy ?? unknown)
         }.sorted { $0.timestamp > $1.timestamp }
     }
 
     private var totalWaterings: Int { events.count }
 
-    /// Consecutive days (ending today) where at least one plant was watered.
+    /// Number of unique days in the visible 6-week window where at least one
+    /// plant was watered. Rewards consistent care without resetting on a
+    /// missed day, which is more honest for plant watering than a strict
+    /// consecutive-day streak.
     private var dayStreak: Int {
         let cal = Calendar.current
-        let dayBuckets = Set(events.map { cal.startOfDay(for: $0.timestamp) })
-        var streak = 0
-        var cursor = cal.startOfDay(for: Date())
-        while dayBuckets.contains(cursor) {
-            streak += 1
-            guard let prev = cal.date(byAdding: .day, value: -1, to: cursor) else { break }
-            cursor = prev
+        let today = cal.startOfDay(for: Date())
+        guard let oldest = cal.date(byAdding: .day, value: -41, to: today) else { return 0 }
+        let inWindow = events.filter {
+            let d = cal.startOfDay(for: $0.timestamp)
+            return d >= oldest && d <= today
         }
-        return streak
+        return Set(inWindow.map { cal.startOfDay(for: $0.timestamp) }).count
     }
 
     private var recentEvents: [WateringEvent] {

@@ -35,10 +35,9 @@
 
 // MARK: - Watering status badge
 "status.new"                     = "Neu";
-"status.overdue"                 = "%d T überfällig";
+// status.overdue und status.in.days liegen in Localizable.stringsdict (Pluralregeln).
 "status.today"                   = "Heute gießen";
 "status.tomorrow"                = "Morgen";
-"status.in.days"                 = "In %d T";
 
 // MARK: - Plant detail (PlantDetailView)
 "detail.section.schedule"        = "RHYTHMUS";
@@ -84,7 +83,7 @@
 "history.eyebrow.six.weeks"      = "DIE LETZTEN SECHS WOCHEN";
 "history.title"                  = "Verlauf";
 "history.waterings"              = "GIESSEN";
-"history.day.streak"             = "TAGE IN FOLGE";
+"history.day.streak"             = "AKTIVE TAGE";
 "history.this.week"              = "DIESE WOCHE";
 "history.none.this.week"         = "Diese Woche noch nichts gegossen.";
 "history.empty.title"            = "Noch nichts gegossen";
