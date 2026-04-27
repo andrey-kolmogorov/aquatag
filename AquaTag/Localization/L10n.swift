@@ -64,10 +64,16 @@ enum L10n {
         static let today    = LocalizedStringKey("status.today")
         static let tomorrow = LocalizedStringKey("status.tomorrow")
         static func overdue(days: Int) -> String {
-            String(format: String(localized: "status.overdue"), days)
+            String.localizedStringWithFormat(
+                NSLocalizedString("status.overdue", comment: ""),
+                days
+            )
         }
         static func inDays(_ days: Int) -> String {
-            String(format: String(localized: "status.in.days"), days)
+            String.localizedStringWithFormat(
+                NSLocalizedString("status.in.days", comment: ""),
+                days
+            )
         }
     }
 

@@ -36,6 +36,14 @@ struct DateFormatters {
         formatter.timeStyle = .none
         return formatter
     }()
+
+    // Compact day + abbreviated month, locale-aware. en-US "Apr 25" / de-DE "25. Apr.".
+    // Used in narrow stat tiles where the full year would wrap.
+    static let dayMonth: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMM")
+        return formatter
+    }()
     
     // Date and time formatter (e.g., "Apr 5, 2026 at 2:30 PM")
     static let dateTime: DateFormatter = {

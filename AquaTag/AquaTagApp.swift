@@ -16,28 +16,48 @@ struct AquaTagApp: App {
         WindowGroup {
             ContentView(pendingPlantID: $pendingPlantID)
                 .onOpenURL { url in
-                    handleIncomingURL(url)
+                    pendingPlantID = handleAquaTagURL(url)
+                }
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                    guard let url = activity.webpageURL else { return }
+                    pendingPlantID = handleAquaTagURL(url)
                 }
         }
-        .modelContainer(for: [Plant.self, AppSettings.self, PendingWateringEvent.self])
+        .modelContainer(for: [Plant.self, AppSettings.self, PendingWateringEvent.self, WateringLog.self])
     }
 
     init() {
         NotificationService.shared.setupNotificationCategories()
     }
 
-    private func handleIncomingURL(_ url: URL) {
-        // Handle aquatag://water/{plantID}
-        guard url.scheme == "aquatag",
-              url.host == "water",
-              let plantID = url.pathComponents.last,
-              !plantID.isEmpty,
-              plantID != "/" else {
-            print("⚠️ Invalid URL: \(url)")
-            return
+    /// Parses AquaTag deep links into a plant ID.
+    ///
+    /// Accepts both the custom scheme written onto NFC tags and the HTTPS
+    /// universal link used for QR codes / App Store fallback:
+    /// - `aquatag://water/{plantID}`
+    /// - `https://aquatag.app/water/{plantID}`
+    ///
+    /// Returns `nil` for anything else so callers can ignore unrelated URLs.
+    func handleAquaTagURL(_ url: URL) -> String? {
+        let plantID: String?
+
+        switch (url.scheme?.lowercased(), url.host?.lowercased()) {
+        case ("aquatag", "water"):
+            plantID = url.pathComponents.last
+        case ("https", "aquatag.app"), ("http", "aquatag.app"):
+            let parts = url.pathComponents.filter { $0 != "/" }
+            plantID = parts.count == 2 && parts[0].lowercased() == "water" ? parts[1] : nil
+        default:
+            plantID = nil
         }
 
-        print("🏷️ Background NFC tag opened app with plant ID: \(plantID)")
-        pendingPlantID = plantID
+        let trimmed = plantID?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let trimmed, !trimmed.isEmpty else {
+            print("⚠️ Unrecognised AquaTag URL: \(url)")
+            return nil
+        }
+
+        print("🏷️ AquaTag URL resolved to plant ID: \(trimmed)")
+        return trimmed
     }
 }

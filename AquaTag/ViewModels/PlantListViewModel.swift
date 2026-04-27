@@ -135,6 +135,12 @@ class PlantListViewModel {
         plant.lastWateredDate = timestamp
         plant.lastWateredBy = deviceName
 
+        modelContext.insert(WateringLog(
+            plantID: plant.id,
+            timestamp: timestamp,
+            wateredBy: deviceName
+        ))
+
         do {
             try modelContext.save()
         } catch {
