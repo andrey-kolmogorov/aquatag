@@ -19,15 +19,19 @@ import SwiftData
 struct PlantListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.horizontalSizeClass) private var hSizeClass
+    @Environment(\.verticalSizeClass) private var vSizeClass
     @Query(sort: \Plant.name) private var plants: [Plant]
     @State private var viewModel: PlantListViewModel?
     @State private var showingAddPlant = false
     @State private var selectedPlant: Plant?
     @Binding var pendingPlantID: String?
 
-    /// Two-column grid in regular width (iPad / iPhone Pro Max landscape),
-    /// single column in compact (most iPhone portrait orientations).
-    private var isWide: Bool { hSizeClass == .regular }
+    /// Two-column grid + inline scan CTA whenever there's horizontal room:
+    /// any iPhone in landscape (vertical compact) or iPad / Pro Max in
+    /// either orientation (horizontal regular).
+    private var isWide: Bool {
+        hSizeClass == .regular || vSizeClass == .compact
+    }
 
     var body: some View {
         NavigationStack {
