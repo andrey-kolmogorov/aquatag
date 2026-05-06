@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Claude Code — per-developer state
+.claude/
+
 # Xcode — user-specific state
 xcuserdata/
 *.xcuserstate
@@ -32,3 +35,8 @@ fastlane/test_output
 
 # Misc
 *.log
+
+# Personal / non-source working files (kept out of the public repo)
+app-store/
+design/
+*.docx

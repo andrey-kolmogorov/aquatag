@@ -103,6 +103,16 @@ xcodebuild -scheme AquaTag -destination 'generic/platform=iOS'
 
 Requires Xcode 16+. No SPM/CocoaPods — all Apple frameworks.
 
+### Building from source (forkers)
+
+To build and run on your own device you'll need to:
+
+1. Change the bundle identifier in `AquaTag.xcodeproj` — `com.andreiapps.AquaTag` is registered to the original author.
+2. Set your own development team in **Signing & Capabilities** for the `AquaTag` target.
+3. Provision the **Near Field Communication Tag Reading** capability — this requires a paid Apple Developer account (free accounts can't sign apps with the NFC entitlement).
+
+Simulator builds work without code signing if you only need to exercise the non-NFC paths (NFC isn't available in the simulator anyway).
+
 ## License
 
-Copyright © 2026 Andrei Kolmogorov. All rights reserved.
+[MIT](LICENSE) — © 2026 Andrei Kolmogorov.
