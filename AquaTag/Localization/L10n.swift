@@ -184,6 +184,19 @@ enum L10n {
             String(format: String(localized: "water.success.offline"), plantName)
         }
     }
+
+    // MARK: Blank-sticker linking
+    enum Blank {
+        static let title     = LocalizedStringKey("blank.title")
+        static let body      = LocalizedStringKey("blank.body")
+        static let emptyHint = LocalizedStringKey("blank.empty.hint")
+        static let addNew    = LocalizedStringKey("blank.add.new")
+        static let ctaWrite  = LocalizedStringKey("blank.cta.write")
+        static let ctaCancel = LocalizedStringKey("blank.cta.cancel")
+        static func writeSuccess(plantName: String) -> String {
+            String(format: String(localized: "blank.write.success"), plantName)
+        }
+    }
 }
 
 // MARK: - Date formatter that respects the current locale

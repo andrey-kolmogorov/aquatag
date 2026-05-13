@@ -72,6 +72,12 @@ struct PlantListView: View {
                     AddPlantView(suggestedID: id)
                 }
             }
+            .sheet(isPresented: Binding(
+                get: { viewModel?.showingBlankTagSheet ?? false },
+                set: { if !$0 { viewModel?.showingBlankTagSheet = false } }
+            )) {
+                if let viewModel { BlankTagAssignmentSheet(viewModel: viewModel) }
+            }
             .alert(L10n.Plants.successTitle, isPresented: Binding(
                 get: { viewModel?.showingSuccess ?? false },
                 set: { if !$0 { viewModel?.showingSuccess = false } }

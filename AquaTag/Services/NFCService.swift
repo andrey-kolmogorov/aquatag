@@ -16,7 +16,9 @@ class NFCService: NSObject {
         case readFailed
         case writeFailed
         case noNDEFSupport
-        
+        case blankTag        // tag is functional but has no AquaTag data yet
+        case unreadableTag   // tag has data, but it's not AquaTag's format
+
         var errorDescription: String? {
             switch self {
             case .notSupported:
@@ -31,6 +33,10 @@ class NFCService: NSObject {
                 return "Failed to write to NFC tag"
             case .noNDEFSupport:
                 return "This tag doesn't support NDEF"
+            case .blankTag:
+                return "Tag has no AquaTag data"
+            case .unreadableTag:
+                return "Tag is not an AquaTag sticker"
             }
         }
     }
@@ -168,19 +174,24 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
             
             tag.readNDEF { message, error in
                 if let error = error {
-                    session.invalidate(errorMessage: "Read failed")
+                    // Map Apple's "tag has no NDEF message" to .blankTag so the
+                    // UI can offer to link it rather than surface CoreNFC jargon.
+                    let mapped: NFCError = ((error as? NFCReaderError)?.code == .ndefReaderSessionErrorZeroLengthMessage)
+                        ? .blankTag
+                        : .readFailed
+                    session.invalidate(errorMessage: mapped == .blankTag ? "Blank tag" : "Read failed")
                     let completion = self.readCompletion
                     self.readCompletion = nil
-                    completion?(.failure(error))
+                    completion?(.failure(mapped))
                     return
                 }
 
                 guard let message = message,
                       let record = message.records.first else {
-                    session.invalidate(errorMessage: "No data on tag")
+                    session.invalidate(errorMessage: "Blank tag")
                     let completion = self.readCompletion
                     self.readCompletion = nil
-                    completion?(.failure(NFCError.invalidTag))
+                    completion?(.failure(NFCError.blankTag))
                     return
                 }
 
@@ -214,8 +225,10 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 
                         guard textStart < payload.count else {
                             print("⚠️ Invalid payload: not enough data")
-                            session.invalidate(errorMessage: "Invalid tag data")
-                            self.readCompletion?(.failure(NFCError.invalidTag))
+                            session.invalidate(errorMessage: "Not an AquaTag sticker")
+                            let completion = self.readCompletion
+                            self.readCompletion = nil
+                            completion?(.failure(NFCError.unreadableTag))
                             return
                         }
 
@@ -251,10 +264,10 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 
                 guard !plantID.isEmpty else {
                     print("⚠️ Empty plant ID after parsing")
-                    session.invalidate(errorMessage: "Could not read tag data")
+                    session.invalidate(errorMessage: "Not an AquaTag sticker")
                     let completion = self.readCompletion
                     self.readCompletion = nil
-                    completion?(.failure(NFCError.invalidTag))
+                    completion?(.failure(NFCError.unreadableTag))
                     return
                 }
 

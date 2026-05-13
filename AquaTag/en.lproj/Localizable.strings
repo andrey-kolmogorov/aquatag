@@ -112,8 +112,23 @@
 "settings.section.helpers"       = "PLANT HELPERS";
 "settings.helpers.subtitle"      = "Auto-created in Home Assistant.";
 "settings.helpers.empty"         = "Add your first plant to see its HA entity.";
-"settings.footer.version"        = "Aquatag · v1.0";
+"settings.footer.version"        = "Aquatag · v1.0.1";
 "settings.footer.tagline"        = "Made for plants.";
+
+// MARK: - Blank-sticker linking
+"blank.title"                    = "Blank sticker";
+"blank.body"                     = "Pick a plant to link this sticker to. You'll tap your phone to it once more to write.";
+"blank.empty.hint"               = "Add a plant first — you can link this sticker to it on the next step.";
+"blank.add.new"                  = "Add new plant";
+"blank.cta.write"                = "Write tag";
+"blank.cta.cancel"               = "Cancel";
+"blank.write.success"            = "Linked sticker to %@";
+
+// MARK: - Friendly NFC errors
+"error.tag.no.nfc.body"          = "This device doesn't support NFC.";
+"error.tag.unreadable.body"      = "This sticker has data on it, but it isn't from AquaTag. Try another sticker.";
+"error.tag.write.body"           = "Couldn't write to the sticker. Hold it steady against the top of your phone and try again.";
+"error.tag.generic.body"         = "We couldn't read that sticker. Try again or use a different one.";
 
 // MARK: - Watering success banner
 "water.success"                  = "💧 Watered %@!";

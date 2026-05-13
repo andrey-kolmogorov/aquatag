@@ -112,8 +112,23 @@
 "settings.section.helpers"       = "PFLANZEN-HELFER";
 "settings.helpers.subtitle"      = "Werden automatisch in Home Assistant angelegt.";
 "settings.helpers.empty"         = "Füge deine erste Pflanze hinzu, um ihre HA-Entity zu sehen.";
-"settings.footer.version"        = "Aquatag · v1.0";
+"settings.footer.version"        = "Aquatag · v1.0.1";
 "settings.footer.tagline"        = "Für Pflanzen gemacht.";
+
+// MARK: - Blank-sticker linking
+"blank.title"                    = "Leerer Sticker";
+"blank.body"                     = "Wähle eine Pflanze, die du mit diesem Sticker verknüpfen möchtest. Du tippst dein iPhone gleich noch einmal an den Sticker, um ihn zu beschreiben.";
+"blank.empty.hint"               = "Füge zuerst eine Pflanze hinzu – du kannst den Sticker im nächsten Schritt mit ihr verknüpfen.";
+"blank.add.new"                  = "Neue Pflanze anlegen";
+"blank.cta.write"                = "Sticker beschreiben";
+"blank.cta.cancel"               = "Abbrechen";
+"blank.write.success"            = "Sticker mit %@ verknüpft";
+
+// MARK: - Friendly NFC errors
+"error.tag.no.nfc.body"          = "Dieses Gerät unterstützt kein NFC.";
+"error.tag.unreadable.body"      = "Auf diesem Sticker stehen Daten, aber sie stammen nicht von AquaTag. Probier einen anderen Sticker.";
+"error.tag.write.body"           = "Der Sticker konnte nicht beschrieben werden. Halte ihn ruhig an die obere Kante deines iPhones und versuche es noch einmal.";
+"error.tag.generic.body"         = "Diesen Sticker konnten wir nicht lesen. Versuche es noch einmal oder nimm einen anderen.";
 
 // MARK: - Watering success banner
 "water.success"                  = "💧 %@ gegossen!";

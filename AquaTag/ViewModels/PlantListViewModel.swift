@@ -26,6 +26,8 @@ class PlantListViewModel {
     var isRefreshing = false
     var showingWaterConfirmation = false
     var plantPendingConfirmation: Plant?
+    var showingBlankTagSheet = false
+    var isWritingTag = false
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -35,26 +37,52 @@ class PlantListViewModel {
     
     func scanNFCTag() async {
         guard NFCService.isNFCAvailable() else {
-            errorMessage = "NFC is not available on this device"
+            errorMessage = String(localized: "error.tag.no.nfc.body")
             showingError = true
             return
         }
-        
+
         isScanning = true
-        
+
         do {
             let plantID = try await nfcService.readTag()
             await handleScannedPlantID(plantID)
         } catch NFCService.NFCError.scanCancelled {
             // User cancelled - no error needed
             print("NFC scan cancelled by user")
+        } catch NFCService.NFCError.blankTag {
+            // Brand-new sticker: invite the user to link it to a plant.
+            showingBlankTagSheet = true
+        } catch NFCService.NFCError.unreadableTag {
+            errorMessage = String(localized: "error.tag.unreadable.body")
+            showingError = true
         } catch {
-            errorMessage = "NFC scan failed: \(error.localizedDescription)"
+            errorMessage = String(localized: "error.tag.generic.body")
             showingError = true
             print("NFC Error: \(error)")
         }
-        
+
         isScanning = false
+    }
+
+    // MARK: - Sticker writing (blank-tag flow)
+
+    func writeStickerForPlant(_ plant: Plant) async {
+        isWritingTag = true
+        defer { isWritingTag = false }
+
+        do {
+            try await nfcService.writeTag(plantID: plant.id)
+            showingBlankTagSheet = false
+            successMessage = String(format: String(localized: "blank.write.success"), plant.name)
+            showingSuccess = true
+        } catch NFCService.NFCError.scanCancelled {
+            // User backed out of the second tap — keep the sheet open silently.
+        } catch {
+            errorMessage = String(localized: "error.tag.write.body")
+            showingError = true
+            print("NFC write error: \(error)")
+        }
     }
     
     // Called when app is opened via background NFC tag (aquatag://water/{plantID})
