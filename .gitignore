@@ -40,3 +40,17 @@ fastlane/test_output
 app-store/
 design/
 *.docx
+
+# Plant classifier training data (downloaded images, not source)
+tools/plant-classifier-training/dataset/
+tools/plant-classifier-training/dropped-classes/
+# Personal research notes on the classifier exploration
+tools/plant-classifier-training/FINDINGS.md
+# Create ML project bundle (checkpoints grow to hundreds of MB per iteration)
+tools/plant-classifier-training/*.mlproj/
+
+# dima806 prototype — venv + downloaded model artifacts + test photos
+tools/dima806-prototype/.venv/
+tools/dima806-prototype/test-photos/
+tools/dima806-prototype/*.mlpackage/
+tools/dima806-prototype/*.mlmodel
