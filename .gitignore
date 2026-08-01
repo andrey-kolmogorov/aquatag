@@ -27,6 +27,9 @@ Package.resolved
 Pods/
 Carthage/Build/
 
+# Scratch screenshot paste target used mid-session
+/image.png
+
 # Fastlane
 fastlane/report.xml
 fastlane/Preview.html
@@ -41,16 +44,7 @@ app-store/
 design/
 *.docx
 
-# Plant classifier training data (downloaded images, not source)
-tools/plant-classifier-training/dataset/
-tools/plant-classifier-training/dropped-classes/
-# Personal research notes on the classifier exploration
-tools/plant-classifier-training/FINDINGS.md
-# Create ML project bundle (checkpoints grow to hundreds of MB per iteration)
-tools/plant-classifier-training/*.mlproj/
-
-# dima806 prototype — venv + downloaded model artifacts + test photos
-tools/dima806-prototype/.venv/
-tools/dima806-prototype/test-photos/
-tools/dima806-prototype/*.mlpackage/
-tools/dima806-prototype/*.mlmodel
+# Local-only research and prototype tooling (plant classifier exploration,
+# ha-mcp experiments, etc.) — kept out of the OSS repo entirely per the
+# "maximally clean" stance. See tools/plant-classifier-training/FINDINGS.md.
+tools/
