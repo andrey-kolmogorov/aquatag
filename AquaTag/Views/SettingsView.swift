@@ -12,6 +12,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var plants: [Plant]
     @State private var viewModel: SettingsViewModel?
+    @State private var cleanupViewModel: HelperCleanupViewModel?
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,7 @@ struct SettingsView: View {
                     deviceCard
                     notificationsCard
                     plantHelpersCard
+                    helperCleanupCard
                     #if DEBUG
                     debugSeedCard
                     #endif
@@ -37,8 +39,25 @@ struct SettingsView: View {
                 if viewModel == nil {
                     viewModel = SettingsViewModel(modelContext: modelContext)
                 }
+                if cleanupViewModel == nil {
+                    cleanupViewModel = HelperCleanupViewModel(modelContext: modelContext)
+                }
             }
             .onDisappear { viewModel?.saveSettings() }
+            .alert(
+                L10n.Settings.cleanupConfirmTitle,
+                isPresented: Binding(
+                    get: { cleanupViewModel?.showingDeleteConfirmation ?? false },
+                    set: { cleanupViewModel?.showingDeleteConfirmation = $0 }
+                )
+            ) {
+                Button(L10n.Plants.cancel, role: .cancel) { }
+                Button(L10n.Settings.cleanupConfirmAction, role: .destructive) {
+                    Task { await cleanupViewModel?.deleteSelected() }
+                }
+            } message: {
+                Text(L10n.Settings.cleanupConfirmBody(cleanupViewModel?.selectedCount ?? 0))
+            }
         }
     }
 
@@ -184,6 +203,152 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+    }
+
+    private var helperCleanupCard: some View {
+        card(title: L10n.Settings.sectionCleanup, subtitle: L10n.Settings.cleanupSub) {
+            VStack(alignment: .leading, spacing: AquaTag.Spacing.sm) {
+                scanButton
+
+                if let error = cleanupViewModel?.scanError {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label(L10n.Settings.cleanupScanFailed, systemImage: "xmark.circle.fill")
+                            .font(AquaTag.Typography.subhead)
+                            .foregroundStyle(AquaTag.Colors.terracotta)
+                        Text(error)
+                            .font(AquaTag.Typography.caption)
+                            .foregroundStyle(AquaTag.Colors.inkSoft)
+                    }
+                }
+
+                if let vm = cleanupViewModel, vm.hasScanned {
+                    if vm.adoptedCount > 0 {
+                        Label(
+                            L10n.Settings.cleanupAdopted(vm.adoptedCount),
+                            systemImage: "link"
+                        )
+                        .font(AquaTag.Typography.caption)
+                        .foregroundStyle(AquaTag.Colors.moss)
+                    }
+
+                    if vm.rows.isEmpty {
+                        Text(L10n.Settings.cleanupEmpty)
+                            .font(AquaTag.Typography.caption)
+                            .foregroundStyle(AquaTag.Colors.inkSoft)
+                    } else {
+                        helperRows(vm)
+                        selectionControls(vm)
+                        deleteButton(vm)
+                        deleteResultLabel(vm)
+                    }
+                }
+            }
+        }
+    }
+
+    private var scanButton: some View {
+        let isScanning = cleanupViewModel?.phase == .scanning
+        let hasScanned = cleanupViewModel?.hasScanned ?? false
+
+        return Button {
+            Task { await cleanupViewModel?.scan() }
+        } label: {
+            HStack {
+                if isScanning {
+                    ProgressView()
+                } else {
+                    Image(systemName: "magnifyingglass")
+                    Text(hasScanned ? L10n.Settings.cleanupRescan : L10n.Settings.cleanupScan)
+                }
+            }
+            .font(AquaTag.Typography.headline)
+            .foregroundStyle(AquaTag.Colors.moss)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(RoundedRectangle(cornerRadius: AquaTag.Radius.md)
+                .strokeBorder(AquaTag.Colors.moss, lineWidth: 1.5))
+        }
+        .buttonStyle(.plain)
+        .disabled(isScanning || cleanupViewModel?.phase == .deleting)
+    }
+
+    private func helperRows(_ vm: HelperCleanupViewModel) -> some View {
+        VStack(alignment: .leading, spacing: AquaTag.Spacing.xs) {
+            ForEach(vm.rows) { row in
+                HelperCleanupRow(
+                    row: row,
+                    linkCandidates: vm.linkCandidates(),
+                    onToggle: { vm.toggle(row.id) },
+                    onLink: { plant in vm.link(row: row, to: plant) }
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func selectionControls(_ vm: HelperCleanupViewModel) -> some View {
+        if vm.hasSelectableRows {
+            HStack(spacing: AquaTag.Spacing.md) {
+                Button(L10n.Settings.cleanupSelectOrphaned) { vm.selectAllOrphaned() }
+                    .font(AquaTag.Typography.caption)
+                    .foregroundStyle(AquaTag.Colors.moss)
+                if vm.selectedCount > 0 {
+                    Button(L10n.Settings.cleanupClearSelection) { vm.clearSelection() }
+                        .font(AquaTag.Typography.caption)
+                        .foregroundStyle(AquaTag.Colors.inkSoft)
+                }
+                Spacer()
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func deleteButton(_ vm: HelperCleanupViewModel) -> some View {
+        if vm.hasSelectableRows {
+            Button(role: .destructive) {
+                vm.showingDeleteConfirmation = true
+            } label: {
+                HStack {
+                    if vm.phase == .deleting {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "trash")
+                        Text(L10n.Settings.cleanupDelete(vm.selectedCount))
+                    }
+                }
+                .font(AquaTag.Typography.headline)
+                .foregroundStyle(vm.selectedCount == 0 ? AquaTag.Colors.inkMute : AquaTag.Colors.terracotta)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(RoundedRectangle(cornerRadius: AquaTag.Radius.md)
+                    .strokeBorder(
+                        vm.selectedCount == 0 ? AquaTag.Colors.divider : AquaTag.Colors.terracotta,
+                        lineWidth: 1.5
+                    ))
+            }
+            .buttonStyle(.plain)
+            .disabled(vm.selectedCount == 0 || vm.phase == .deleting)
+        }
+    }
+
+    @ViewBuilder
+    private func deleteResultLabel(_ vm: HelperCleanupViewModel) -> some View {
+        switch vm.deleteResult {
+        case .success(let deleted):
+            Label(L10n.Settings.cleanupResultSuccess(deleted), systemImage: "checkmark.circle.fill")
+                .font(AquaTag.Typography.subhead)
+                .foregroundStyle(AquaTag.Colors.moss)
+        case .partial(let deleted, let failed):
+            Label(
+                L10n.Settings.cleanupResultPartial(deleted: deleted, failed: failed),
+                systemImage: "exclamationmark.triangle.fill"
+            )
+            .font(AquaTag.Typography.subhead)
+            .foregroundStyle(AquaTag.Colors.terracotta)
+        case nil:
+            EmptyView()
         }
     }
 
