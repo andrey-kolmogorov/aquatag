@@ -168,10 +168,16 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(plant.name).font(AquaTag.Typography.subhead)
                                     .foregroundStyle(AquaTag.Colors.ink)
-                                Text(plant.haEntityID).font(AquaTag.Typography.monoSmall)
-                                    .foregroundStyle(AquaTag.Colors.moss)
-                                    .textSelection(.enabled)
-                                    .lineLimit(1).minimumScaleFactor(0.6)
+                                if let entityID = plant.haEntityID {
+                                    Text(entityID).font(AquaTag.Typography.monoSmall)
+                                        .foregroundStyle(AquaTag.Colors.moss)
+                                        .textSelection(.enabled)
+                                        .lineLimit(1).minimumScaleFactor(0.6)
+                                } else {
+                                    Text(L10n.Settings.helpersUnlinked)
+                                        .font(AquaTag.Typography.caption)
+                                        .foregroundStyle(AquaTag.Colors.inkMute)
+                                }
                             }
                             Spacer()
                         }

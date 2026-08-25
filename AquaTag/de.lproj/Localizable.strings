@@ -54,6 +54,7 @@
 "detail.write.success.title"     = "Sticker beschrieben";
 "detail.write.failed.title"      = "Schreiben fehlgeschlagen";
 "detail.entity.label"            = "Entity";
+"detail.entity.unlinked"         = "Noch nicht mit Home Assistant verknüpft";
 "detail.tag.id"                  = "Tag-ID";
 "detail.logged.by"               = "Gegossen von";
 "detail.toolbar.done"            = "Fertig";
@@ -112,8 +113,36 @@
 "settings.section.helpers"       = "PFLANZEN-HELFER";
 "settings.helpers.subtitle"      = "Werden automatisch in Home Assistant angelegt.";
 "settings.helpers.empty"         = "Füge deine erste Pflanze hinzu, um ihre HA-Entity zu sehen.";
+"settings.helpers.unlinked"      = "Noch nicht verknüpft";
 "settings.footer.version"        = "Aquatag · v1.0.1";
 "settings.footer.tagline"        = "Für Pflanzen gemacht.";
+
+// MARK: - HA helper cleanup
+"settings.section.cleanup"       = "HA-HELFER AUFRÄUMEN";
+"settings.cleanup.subtitle"      = "Übrig gebliebene Helfer in Home Assistant finden.";
+"settings.cleanup.scan"          = "Home Assistant durchsuchen";
+"settings.cleanup.rescan"        = "Erneut suchen";
+"settings.cleanup.empty"         = "Keine input_datetime-Helfer gefunden.";
+"settings.cleanup.not.configured" = "Trage zuerst URL und Token ein.";
+"settings.cleanup.scan.failed"   = "Suche fehlgeschlagen";
+"settings.cleanup.badge.linked"  = "Verknüpft";
+"settings.cleanup.badge.adoptable" = "Passt zu %@";
+"settings.cleanup.badge.orphaned" = "Keine Pflanze";
+"settings.cleanup.badge.locked"  = "In YAML definiert – hier nicht löschbar";
+"settings.cleanup.last.watered"  = "Zuletzt gegossen %@";
+"settings.cleanup.never.set"     = "Nie gesetzt";
+"settings.cleanup.link.action"   = "Mit %@ verknüpfen";
+"settings.cleanup.select.orphaned" = "Alle ohne Pflanze auswählen";
+"settings.cleanup.clear.selection" = "Auswahl aufheben";
+"settings.cleanup.delete"        = "%d ausgewählte löschen";
+"settings.cleanup.delete.one"    = "1 ausgewählten löschen";
+"settings.cleanup.confirm.title" = "Helfer löschen?";
+"settings.cleanup.confirm.body"  = "%d Helfer und ihr Verlauf werden unwiderruflich aus Home Assistant entfernt.";
+"settings.cleanup.confirm.body.one" = "1 Helfer und sein Verlauf werden unwiderruflich aus Home Assistant entfernt.";
+"settings.cleanup.confirm.action" = "Löschen";
+"settings.cleanup.result.success" = "%d gelöscht";
+"settings.cleanup.result.partial" = "%1$d gelöscht · %2$d fehlgeschlagen";
+"settings.cleanup.adopted"       = "%d Pflanze(n) mit vorhandenen Helfern verknüpft";
 
 // MARK: - Blank-sticker linking
 "blank.title"                    = "Leerer Sticker";

@@ -21,6 +21,15 @@ class Plant {
     var createdAt: Date
     var nfcTagID: String?       // raw NFC hardware UID (optional backup identifier)
 
+    /// The object_id Home Assistant assigned to this plant's `input_datetime`
+    /// helper, e.g. `hortensia_last_watered`. `nil` until the plant is linked.
+    ///
+    /// Persisted rather than derived: HA generates the id by slugifying the
+    /// helper's *name* and appends `_2`, `_3`, … on collision, so no
+    /// client-side rule can reproduce it reliably. Guessing it is what left
+    /// this app unable to read or write any helper it created.
+    var haHelperObjectID: String?
+
     init(
         id: String,
         name: String,
@@ -31,7 +40,8 @@ class Plant {
         lastWateredBy: String? = nil,
         notes: String = "",
         createdAt: Date = Date(),
-        nfcTagID: String? = nil
+        nfcTagID: String? = nil,
+        haHelperObjectID: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -43,6 +53,7 @@ class Plant {
         self.notes = notes
         self.createdAt = createdAt
         self.nfcTagID = nfcTagID
+        self.haHelperObjectID = haHelperObjectID
     }
     
     // Computed properties for UI
@@ -87,8 +98,16 @@ class Plant {
         }
     }
     
-    var haEntityID: String {
-        "input_datetime.plant_\(id)_last_watered"
+    /// The Home Assistant entity this plant syncs to, or `nil` when it hasn't
+    /// been linked yet.
+    ///
+    /// Optional on purpose. The previous non-optional version fabricated an id
+    /// that never existed in HA, so every caller silently read and wrote into
+    /// the void. Making it optional forces each call site to decide what
+    /// "not linked" means instead of papering over it.
+    var haEntityID: String? {
+        guard let objectID = haHelperObjectID, !objectID.isEmpty else { return nil }
+        return "input_datetime.\(objectID)"
     }
 }
 

@@ -93,6 +93,7 @@ enum L10n {
         static let writeSuccess    = LocalizedStringKey("detail.write.success.title")
         static let writeFailed     = LocalizedStringKey("detail.write.failed.title")
         static let entityLabel     = LocalizedStringKey("detail.entity.label")
+        static let entityUnlinked  = LocalizedStringKey("detail.entity.unlinked")
         static let tagID           = LocalizedStringKey("detail.tag.id")
         static let loggedBy        = LocalizedStringKey("detail.logged.by")
         static let toolbarDone     = LocalizedStringKey("detail.toolbar.done")
@@ -167,11 +168,65 @@ enum L10n {
         static let sectionHelpers      = LocalizedStringKey("settings.section.helpers")
         static let helpersSub          = LocalizedStringKey("settings.helpers.subtitle")
         static let helpersEmpty        = LocalizedStringKey("settings.helpers.empty")
+        static let helpersUnlinked     = LocalizedStringKey("settings.helpers.unlinked")
         static let footerVersion       = LocalizedStringKey("settings.footer.version")
         static let footerTagline       = LocalizedStringKey("settings.footer.tagline")
 
+        // HA helper cleanup
+        static let sectionCleanup      = LocalizedStringKey("settings.section.cleanup")
+        static let cleanupSub          = LocalizedStringKey("settings.cleanup.subtitle")
+        static let cleanupScan         = LocalizedStringKey("settings.cleanup.scan")
+        static let cleanupRescan       = LocalizedStringKey("settings.cleanup.rescan")
+        static let cleanupEmpty        = LocalizedStringKey("settings.cleanup.empty")
+        static let cleanupNotConfigured = LocalizedStringKey("settings.cleanup.not.configured")
+        static let cleanupScanFailed   = LocalizedStringKey("settings.cleanup.scan.failed")
+        static let cleanupBadgeLinked  = LocalizedStringKey("settings.cleanup.badge.linked")
+        static let cleanupBadgeOrphaned = LocalizedStringKey("settings.cleanup.badge.orphaned")
+        static let cleanupBadgeLocked  = LocalizedStringKey("settings.cleanup.badge.locked")
+        static let cleanupNeverSet     = LocalizedStringKey("settings.cleanup.never.set")
+        static let cleanupSelectOrphaned = LocalizedStringKey("settings.cleanup.select.orphaned")
+        static let cleanupClearSelection = LocalizedStringKey("settings.cleanup.clear.selection")
+        static let cleanupConfirmTitle = LocalizedStringKey("settings.cleanup.confirm.title")
+        static let cleanupConfirmAction = LocalizedStringKey("settings.cleanup.confirm.action")
+
         static func defaultIntervalDays(_ n: Int) -> String {
             String(format: String(localized: "settings.default.interval.days"), n)
+        }
+
+        static func cleanupBadgeAdoptable(plantName: String) -> String {
+            String(format: String(localized: "settings.cleanup.badge.adoptable"), plantName)
+        }
+
+        static func cleanupLinkAction(plantName: String) -> String {
+            String(format: String(localized: "settings.cleanup.link.action"), plantName)
+        }
+
+        static func cleanupLastWatered(_ date: String) -> String {
+            String(format: String(localized: "settings.cleanup.last.watered"), date)
+        }
+
+        static func cleanupDelete(_ n: Int) -> String {
+            n == 1
+                ? String(localized: "settings.cleanup.delete.one")
+                : String(format: String(localized: "settings.cleanup.delete"), n)
+        }
+
+        static func cleanupConfirmBody(_ n: Int) -> String {
+            n == 1
+                ? String(localized: "settings.cleanup.confirm.body.one")
+                : String(format: String(localized: "settings.cleanup.confirm.body"), n)
+        }
+
+        static func cleanupResultSuccess(_ n: Int) -> String {
+            String(format: String(localized: "settings.cleanup.result.success"), n)
+        }
+
+        static func cleanupResultPartial(deleted: Int, failed: Int) -> String {
+            String(format: String(localized: "settings.cleanup.result.partial"), deleted, failed)
+        }
+
+        static func cleanupAdopted(_ n: Int) -> String {
+            String(format: String(localized: "settings.cleanup.adopted"), n)
         }
     }
 

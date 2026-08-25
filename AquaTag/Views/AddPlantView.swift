@@ -186,9 +186,13 @@ struct AddPlantView: View {
             .fill(AquaTag.Colors.moss.opacity(0.06)))
     }
 
+    /// Preview of the helper Home Assistant will most likely create.
+    ///
+    /// A prediction, not a promise — HA derives the id from the helper's name
+    /// and appends a suffix if that name is taken, which is why the real id is
+    /// always read back from the create response rather than assumed.
     private var generatedEntityID: String {
-        let plantID = suggestedID ?? PlantIDGenerator.generateID(from: name)
-        return "input_datetime.plant_\(plantID)_last_watered"
+        "input_datetime.\(HAHelperResolver.predictedObjectID(for: name))"
     }
 
     private func savePlant() {
@@ -204,10 +208,11 @@ struct AddPlantView: View {
         modelContext.insert(plant)
         try? modelContext.save()
 
-        if let settings = settings.first, settings.isConfigured,
-           let token = try? KeychainService.getHAToken() {
-            let ha = HAService(baseURL: settings.nabucasaURL, token: token)
-            Task { try? await ha.ensureHelperExists(plantID: plant.id, plantName: plant.name) }
+        if let ha = HAService.configured(from: modelContext) {
+            let resolver = HAHelperResolver(modelContext: modelContext, service: ha)
+            // Adopts a matching helper when one already exists, so re-adding a
+            // plant reattaches to its history instead of spawning a duplicate.
+            Task { try? await resolver.ensureHelper(for: plant) }
         }
 
         dismiss()

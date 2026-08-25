@@ -194,17 +194,21 @@ class PlantListViewModel {
         generator.notificationOccurred(.success)
 
         // Sync to Home Assistant if configured
-        let token = try? KeychainService.getHAToken()
-        guard let settings, settings.isConfigured, let token, !token.isEmpty else {
+        guard let haService = HAService.configured(from: modelContext) else {
             successMessage = "💧 Watered \(plant.name)!"
             showingSuccess = true
             return
         }
 
-        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
+        let resolver = HAHelperResolver(modelContext: modelContext, service: haService)
 
         do {
+            // Resolves an existing link, adopts a matching helper, or creates
+            // one — and records whichever id HA actually assigned.
+            let entityID = try await resolver.ensureHelper(for: plant)
+
             try await haService.logWatering(
+                entityID: entityID,
                 plantID: plant.id,
                 plantName: plant.name,
                 deviceName: deviceName,
@@ -233,37 +237,37 @@ class PlantListViewModel {
     // MARK: - Refresh from HA
     
     func refreshFromHA() async {
-        let settingsDescriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
-              settings.isConfigured,
-              let token = try? KeychainService.getHAToken() else {
-            return
-        }
-        
+        guard let haService = HAService.configured(from: modelContext) else { return }
+
         isRefreshing = true
-        
-        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
-        
-        // Fetch all plants
-        let plantsDescriptor = FetchDescriptor<Plant>()
-        guard let plants = try? modelContext.fetch(plantsDescriptor) else {
-            isRefreshing = false
-            return
-        }
-        
-        // Update each plant's last watered date from HA
-        for plant in plants {
-            do {
-                if let lastWatered = try await haService.getLastWateredDate(plantID: plant.id) {
-                    plant.lastWateredDate = lastWatered
-                }
-            } catch {
-                print("Failed to fetch last watered date for \(plant.name): \(error)")
+        defer { isRefreshing = false }
+
+        let resolver = HAHelperResolver(modelContext: modelContext, service: haService)
+
+        do {
+            // One inventory fetch serves both jobs: linking plants that were
+            // never attached (repairing installs that predate the id fix), and
+            // reading every current value. The old code did an N-request loop
+            // of single-entity lookups instead.
+            let inventory = try await haService.fetchHelperInventory()
+            try await resolver.adoptExistingHelpers(inventory: inventory)
+
+            let valuesByObjectID = Dictionary(
+                inventory.map { ($0.objectID, $0.lastWatered) },
+                uniquingKeysWith: { first, _ in first }
+            )
+
+            let plants = (try? modelContext.fetch(FetchDescriptor<Plant>())) ?? []
+            for plant in plants {
+                guard let objectID = plant.haHelperObjectID,
+                      let lastWatered = valuesByObjectID[objectID] ?? nil else { continue }
+                plant.lastWateredDate = lastWatered
             }
+
+            try? modelContext.save()
+        } catch {
+            print("Failed to refresh from HA: \(error.localizedDescription)")
         }
-        
-        try? modelContext.save()
-        isRefreshing = false
     }
     
     // MARK: - Retry Pending Events
@@ -275,24 +279,33 @@ class PlantListViewModel {
             return
         }
         
-        let settingsDescriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
-              settings.isConfigured,
-              let token = try? KeychainService.getHAToken() else {
-            return
-        }
-        
-        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
-        
+        guard let haService = HAService.configured(from: modelContext) else { return }
+
+        let resolver = HAHelperResolver(modelContext: modelContext, service: haService)
+        let plants = (try? modelContext.fetch(FetchDescriptor<Plant>())) ?? []
+        let plantsByID = Dictionary(plants.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
         for event in pendingEvents {
             do {
+                // Pending events store only the plant id, so the entity has to
+                // be resolved through the plant. A plant deleted while offline
+                // leaves its event unsendable — drop it rather than retrying
+                // forever.
+                guard let plant = plantsByID[event.plantID] else {
+                    modelContext.delete(event)
+                    continue
+                }
+
+                let entityID = try await resolver.ensureHelper(for: plant)
+
                 try await haService.logWatering(
+                    entityID: entityID,
                     plantID: event.plantID,
                     plantName: event.plantName,
                     deviceName: event.deviceName,
                     timestamp: event.timestamp
                 )
-                
+
                 // Success - remove from pending
                 modelContext.delete(event)
             } catch {
@@ -300,27 +313,22 @@ class PlantListViewModel {
                 print("Failed to sync pending event: \(error)")
             }
         }
-        
+
         try? modelContext.save()
     }
     
     // MARK: - Auto-Create HA Helper
     
     func ensureHelperExists(for plant: Plant) async {
-        let settingsDescriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(settingsDescriptor).first,
-              settings.isConfigured,
-              let token = try? KeychainService.getHAToken() else {
-            return
-        }
-        
-        let haService = HAService(baseURL: settings.nabucasaURL, token: token)
-        
+        guard let haService = HAService.configured(from: modelContext) else { return }
+
+        let resolver = HAHelperResolver(modelContext: modelContext, service: haService)
+
         do {
-            try await haService.ensureHelperExists(plantID: plant.id, plantName: plant.name)
-            print("✅ Helper created/verified for \(plant.name)")
+            let entityID = try await resolver.ensureHelper(for: plant)
+            print("✅ Helper linked for \(plant.name): \(entityID)")
         } catch {
-            print("⚠️ Failed to create helper for \(plant.name): \(error)")
+            print("⚠️ Failed to link helper for \(plant.name): \(error)")
             // Don't show error to user - this is a background operation
         }
     }

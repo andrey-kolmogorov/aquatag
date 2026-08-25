@@ -54,6 +54,7 @@
 "detail.write.success.title"     = "Tag Written";
 "detail.write.failed.title"      = "Write Failed";
 "detail.entity.label"            = "Entity";
+"detail.entity.unlinked"         = "Not linked to Home Assistant yet";
 "detail.tag.id"                  = "Tag ID";
 "detail.logged.by"               = "Logged by";
 "detail.toolbar.done"            = "Done";
@@ -112,8 +113,36 @@
 "settings.section.helpers"       = "PLANT HELPERS";
 "settings.helpers.subtitle"      = "Auto-created in Home Assistant.";
 "settings.helpers.empty"         = "Add your first plant to see its HA entity.";
+"settings.helpers.unlinked"      = "Not linked yet";
 "settings.footer.version"        = "Aquatag · v1.0.1";
 "settings.footer.tagline"        = "Made for plants.";
+
+// MARK: - HA helper cleanup
+"settings.section.cleanup"       = "HA HELPER CLEANUP";
+"settings.cleanup.subtitle"      = "Find leftover helpers in Home Assistant.";
+"settings.cleanup.scan"          = "Scan Home Assistant";
+"settings.cleanup.rescan"        = "Scan again";
+"settings.cleanup.empty"         = "No input_datetime helpers found.";
+"settings.cleanup.not.configured" = "Add your Home Assistant URL and token first.";
+"settings.cleanup.scan.failed"   = "Scan failed";
+"settings.cleanup.badge.linked"  = "Linked";
+"settings.cleanup.badge.adoptable" = "Matches %@";
+"settings.cleanup.badge.orphaned" = "No plant";
+"settings.cleanup.badge.locked"  = "Defined in YAML — can't delete here";
+"settings.cleanup.last.watered"  = "Last watered %@";
+"settings.cleanup.never.set"     = "Never set";
+"settings.cleanup.link.action"   = "Link to %@";
+"settings.cleanup.select.orphaned" = "Select all unmatched";
+"settings.cleanup.clear.selection" = "Clear selection";
+"settings.cleanup.delete"        = "Delete %d selected";
+"settings.cleanup.delete.one"    = "Delete 1 selected";
+"settings.cleanup.confirm.title" = "Delete helpers?";
+"settings.cleanup.confirm.body"  = "This permanently removes %d helpers and their history from Home Assistant. It can't be undone.";
+"settings.cleanup.confirm.body.one" = "This permanently removes 1 helper and its history from Home Assistant. It can't be undone.";
+"settings.cleanup.confirm.action" = "Delete";
+"settings.cleanup.result.success" = "Deleted %d";
+"settings.cleanup.result.partial" = "Deleted %1$d · %2$d failed";
+"settings.cleanup.adopted"       = "Linked %d plant(s) to existing helpers";
 
 // MARK: - Blank-sticker linking
 "blank.title"                    = "Blank sticker";

@@ -201,10 +201,16 @@ struct PlantDetailView: View {
                 Text(L10n.Detail.entityLabel)
                     .font(AquaTag.Typography.micro).tracking(1)
                     .foregroundStyle(AquaTag.Colors.inkSoft)
-                Text(plant.haEntityID)
-                    .font(AquaTag.Typography.mono)
-                    .foregroundStyle(AquaTag.Colors.ink)
-                    .textSelection(.enabled)
+                if let entityID = plant.haEntityID {
+                    Text(entityID)
+                        .font(AquaTag.Typography.mono)
+                        .foregroundStyle(AquaTag.Colors.ink)
+                        .textSelection(.enabled)
+                } else {
+                    Text(L10n.Detail.entityUnlinked)
+                        .font(AquaTag.Typography.body)
+                        .foregroundStyle(AquaTag.Colors.inkMute)
+                }
             }
         }
     }
