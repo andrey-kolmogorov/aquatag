@@ -66,9 +66,11 @@ event_type: aquatag_plant_watered
 event_data:
   plant_id: "monstera"
   plant_name: "Monstera Deliciosa"
-  plant_emoji: "🪴"
   device_name: "Andrei's iPhone"
+  timestamp: "2026-08-25T13:16:53.421+02:00"
 ```
+
+Those four fields are the whole payload. `timestamp` is ISO 8601 with an offset — unlike the `input_datetime` state, which is local wall-clock.
 
 This is your hook for any automation. You don't need to read the `input_datetime` to *know* a watering happened — listen for the event. The `input_datetime` exists so you can answer *"when was the last time?"* on demand.
 
@@ -106,7 +108,7 @@ automation:
     action:
       - service: logbook.log
         data:
-          name: "{{ trigger.event.data.plant_emoji }} {{ trigger.event.data.plant_name }}"
+          name: "{{ trigger.event.data.plant_name }}"
           message: "watered by {{ trigger.event.data.device_name }}"
 ```
 
