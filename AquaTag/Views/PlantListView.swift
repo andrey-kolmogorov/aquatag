@@ -86,17 +86,17 @@ struct PlantListView: View {
                 get: { viewModel?.showingError ?? false },
                 set: { if !$0 { viewModel?.showingError = false } }
             )) { Button(L10n.Plants.ok) { } } message: { Text(viewModel?.errorMessage ?? "") }
+            // The dismissal setter must NOT clear `plantPendingConfirmation`.
+            // Dismissal runs synchronously the moment a button is tapped, while
+            // the button's own action is deferred into a Task — so clearing it
+            // here always wins the race, and `confirmWatering()` would find nil
+            // and silently do nothing. Each button owns its own cleanup instead.
             .alert(L10n.Plants.alreadyTitle, isPresented: Binding(
                 get: { viewModel?.showingWaterConfirmation ?? false },
-                set: {
-                    if !$0 {
-                        viewModel?.showingWaterConfirmation = false
-                        viewModel?.plantPendingConfirmation = nil
-                    }
-                }
+                set: { if !$0 { viewModel?.showingWaterConfirmation = false } }
             )) {
                 Button(L10n.Plants.waterAnyway) { Task { await viewModel?.confirmWatering() } }
-                Button(L10n.Plants.cancel, role: .cancel) { }
+                Button(L10n.Plants.cancel, role: .cancel) { viewModel?.plantPendingConfirmation = nil }
             } message: {
                 if let plant = viewModel?.plantPendingConfirmation {
                     Text(L10n.Plants.alreadyBody(plantName: plant.name))
