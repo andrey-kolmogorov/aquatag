@@ -8,15 +8,24 @@
 import Foundation
 
 struct DateFormatters {
+    // The two ISO formatters are the only ones used off the main actor (by
+    // HAService, which is nonisolated so its JSON work stays off the main
+    // thread). They're `nonisolated(unsafe)` because ISO8601DateFormatter
+    // predates Sendable and can't be marked as such — not because the safety
+    // is in doubt: `formatOptions` is set once during static initialisation
+    // and never touched again, so every subsequent use is a concurrent read of
+    // an effectively immutable object. The display formatters below stay
+    // main-actor isolated; they're only ever touched from views.
+
     // ISO 8601 formatter for HA API
-    static let iso8601: ISO8601DateFormatter = {
+    nonisolated(unsafe) static let iso8601: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
-    
+
     // ISO 8601 without fractional seconds (for HA datetime helpers)
-    static let iso8601NoFractional: ISO8601DateFormatter = {
+    nonisolated(unsafe) static let iso8601NoFractional: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
         return formatter

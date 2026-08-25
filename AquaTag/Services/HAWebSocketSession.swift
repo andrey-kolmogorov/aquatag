@@ -24,7 +24,11 @@
 
 import Foundation
 
-final class HAWebSocketSession {
+/// `nonisolated` because the project builds with
+/// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, which would otherwise pin this
+/// to the main actor. A socket that blocks on `receive()` has no business
+/// there — and its callers are already `async`, so hopping off is free.
+nonisolated final class HAWebSocketSession {
 
     /// Default ceiling for a single receive. Home Assistant replies to
     /// storage-collection commands almost instantly; anything approaching

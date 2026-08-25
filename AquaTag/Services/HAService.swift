@@ -25,7 +25,12 @@ struct HAHelper: Identifiable, Hashable, Sendable {
     var id: String { objectID }
 }
 
-class HAService: NSObject {
+/// `nonisolated` for the same reason as `HAWebSocketSession`: the project
+/// defaults declarations to `@MainActor`, and this type does network I/O and
+/// JSON parsing — `fetchInputDateTimeStates` decodes every entity in the
+/// instance, which has no business blocking the main thread. State is two
+/// immutable strings, so there is nothing to protect.
+nonisolated final class HAService: NSObject {
     enum HAError: LocalizedError {
         case invalidURL
         case noToken
@@ -175,7 +180,10 @@ class HAService: NSObject {
 
     func deleteHelper(objectID: String) async throws {
         try await withWebSocket { session in
-            try await session.send([
+            // Explicit discard: `send` returns the reply payload, and letting
+            // the closure infer that return type makes `withWebSocket` produce
+            // an unused value.
+            _ = try await session.send([
                 "type": "input_datetime/delete",
                 "input_datetime_id": objectID
             ])
