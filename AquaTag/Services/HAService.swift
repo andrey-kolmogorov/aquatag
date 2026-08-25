@@ -260,6 +260,7 @@ nonisolated final class HAService: NSObject {
 
         let prefix = "input_datetime."
         var result: [String: (name: String?, date: Date?)] = [:]
+        let formatter = DateFormatters.haDateTime()
 
         for entity in entities {
             guard let entityID = entity["entity_id"] as? String,
@@ -269,21 +270,26 @@ nonisolated final class HAService: NSObject {
             let attributes = entity["attributes"] as? [String: Any]
             let friendlyName = attributes?["friendly_name"] as? String
 
-            result[objectID] = (name: friendlyName, date: Self.parseHelperDate(entity["state"]))
+            result[objectID] = (
+                name: friendlyName,
+                date: Self.parseHelperDate(entity["state"], using: formatter)
+            )
         }
 
         return result
     }
 
-    /// A freshly created `input_datetime` reports the Unix epoch rather than a
-    /// null state. Treating that as a real date would show every untouched
-    /// helper as "last watered 1 Jan 1970" and destroy the only signal that
+    /// Parses HA's `input_datetime` state.
+    ///
+    /// A freshly created helper reports the Unix epoch rather than a null
+    /// state. Treating that as a real date would show every untouched helper
+    /// as "last watered 1 Jan 1970" and destroy the only signal that
     /// distinguishes same-named helpers from each other.
-    private static func parseHelperDate(_ rawState: Any?) -> Date? {
+    private static func parseHelperDate(_ rawState: Any?, using formatter: DateFormatter) -> Date? {
         guard let state = rawState as? String,
               state != "unknown",
               state != "unavailable",
-              let date = DateFormatters.iso8601NoFractional.date(from: state),
+              let date = formatter.date(from: state),
               date.timeIntervalSince1970 > 0 else {
             return nil
         }
@@ -365,11 +371,10 @@ nonisolated final class HAService: NSObject {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let isoTimestamp = DateFormatters.iso8601NoFractional.string(from: timestamp)
-
+        // Local wall-clock, not ISO — see DateFormatters.haDateTime().
         let body: [String: Any] = [
             "entity_id": entityID,
-            "datetime": isoTimestamp
+            "datetime": DateFormatters.haDateTime().string(from: timestamp)
         ]
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -454,7 +459,7 @@ nonisolated final class HAService: NSObject {
             return nil
         }
 
-        return Self.parseHelperDate(json["state"])
+        return Self.parseHelperDate(json["state"], using: DateFormatters.haDateTime())
     }
 
     // MARK: - Get Watering History

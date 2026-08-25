@@ -8,28 +8,43 @@
 import Foundation
 
 struct DateFormatters {
-    // The two ISO formatters are the only ones used off the main actor (by
-    // HAService, which is nonisolated so its JSON work stays off the main
-    // thread). They're `nonisolated(unsafe)` because ISO8601DateFormatter
-    // predates Sendable and can't be marked as such — not because the safety
-    // is in doubt: `formatOptions` is set once during static initialisation
-    // and never touched again, so every subsequent use is a concurrent read of
-    // an effectively immutable object. The display formatters below stay
-    // main-actor isolated; they're only ever touched from views.
+    // `iso8601` and `haDateTime()` are used off the main actor by HAService,
+    // which is nonisolated so its JSON work stays off the main thread — hence
+    // the explicit annotations. `iso8601` is `nonisolated(unsafe)` because
+    // ISO8601DateFormatter predates Sendable, not because the safety is in
+    // doubt: `formatOptions` is set once during static initialisation and
+    // never touched again, so every later use is a concurrent read of an
+    // effectively immutable object. The display formatters below stay
+    // main-actor isolated; views are their only caller.
 
-    // ISO 8601 formatter for HA API
+    /// ISO 8601 with fractional seconds — used for the `aquatag_plant_watered`
+    /// event payload, where an unambiguous absolute timestamp is what
+    /// automations want. Note this is *not* the format HA's `input_datetime`
+    /// helpers use; see `haDateTime()`.
     nonisolated(unsafe) static let iso8601: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
-    // ISO 8601 without fractional seconds (for HA datetime helpers)
-    nonisolated(unsafe) static let iso8601NoFractional: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
+    /// Home Assistant's `input_datetime` wire format: `2026-08-18 09:00:00`.
+    ///
+    /// Not ISO 8601 — space-separated and **timezone-naive**. HA stores plain
+    /// local wall-clock, so sending an ISO string with a `Z` suffix makes it
+    /// keep the UTC digits and drop the offset, recording every timestamp
+    /// hours early. Read and write both have to go through this.
+    ///
+    /// A factory rather than a shared instance: `DateFormatter` captures its
+    /// timeZone when set, so a cached one would go stale if the device changes
+    /// zone, and a fresh instance sidesteps the Sendable question entirely.
+    /// Create one per operation and reuse it within a loop.
+    nonisolated static func haDateTime() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
         return formatter
-    }()
+    }
     
     // Relative date formatter (e.g., "3 days ago")
     static let relative: RelativeDateTimeFormatter = {
