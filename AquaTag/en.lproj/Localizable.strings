@@ -111,10 +111,10 @@
 "settings.default.interval"      = "Default interval";
 "settings.default.interval.days" = "%d days";
 "settings.section.helpers"       = "PLANT HELPERS";
-"settings.helpers.subtitle"      = "Auto-created in Home Assistant.";
+"settings.helpers.subtitle"      = "Linked to Home Assistant.";
 "settings.helpers.empty"         = "Add your first plant to see its HA entity.";
 "settings.helpers.unlinked"      = "Not linked yet";
-"settings.footer.version"        = "Aquatag · v1.0.1";
+"settings.footer.version"        = "Aquatag · v1.1.0";
 "settings.footer.tagline"        = "Made for plants.";
 
 // MARK: - HA helper cleanup
