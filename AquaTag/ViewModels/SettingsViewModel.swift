@@ -99,25 +99,41 @@ class SettingsViewModel {
     
     // MARK: - Test Connection
     
+    /// Validates the credentials **as stored**, not as typed.
+    ///
+    /// This used to build an HAService straight from the in-memory fields,
+    /// which made it possible for the check to pass while every real sync
+    /// failed: the token only reached the Keychain via `saveSettings()` on
+    /// `.onDisappear`, and `HAService.configured(from:)` — the path watering,
+    /// refresh and the cleanup scan all use — reads it from there. A green
+    /// "Connected" against a token that was never persisted is worse than no
+    /// check at all, because it points the user away from the actual fault.
+    ///
+    /// Persisting first also means a token can't be lost by testing it and
+    /// then leaving the app without navigating out of Settings.
     func testConnection() async {
         guard !nabucasaURL.isEmpty, !haToken.isEmpty else {
-            testResult = .failure("Please enter both URL and token")
+            testResult = .failure(String(localized: "settings.test.missing.credentials"))
             return
         }
-        
+
         isTesting = true
         testResult = nil
-        
-        let haService = HAService(baseURL: nabucasaURL, token: haToken)
-        
+        defer { isTesting = false }
+
+        saveSettings()
+
+        guard let haService = HAService.configured(from: modelContext) else {
+            testResult = .failure(String(localized: "settings.test.not.stored"))
+            return
+        }
+
         do {
             _ = try await haService.testConnection()
             testResult = .success
         } catch {
             testResult = .failure(error.localizedDescription)
         }
-        
-        isTesting = false
     }
     
     // MARK: - Request Notification Permission

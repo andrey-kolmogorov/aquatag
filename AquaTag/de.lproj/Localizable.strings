@@ -100,6 +100,8 @@
 "settings.field.url"             = "Nabu Casa URL";
 "settings.field.token"           = "Langfristiges Token";
 "settings.test.connection"       = "Verbindung testen";
+"settings.test.missing.credentials" = "Trage zuerst URL und Token ein.";
+"settings.test.not.stored"       = "Die Zugangsdaten konnten nicht gespeichert werden. Prüfe die URL und versuche es erneut.";
 "settings.connected"             = "Verbunden";
 "settings.connection.failed"     = "Verbindung fehlgeschlagen";
 "settings.section.device"        = "GERÄT";
