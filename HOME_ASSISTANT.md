@@ -34,6 +34,8 @@ AquaTag connects via your Nabu Casa cloud URL (e.g. `https://abc123xyz.ui.nabu.c
 
 In AquaTag, tap `+` in the Plants tab and fill in name, emoji, and watering interval. AquaTag opens a WebSocket to HA and creates an `input_datetime` helper for that plant — no manual entity setup needed in HA's UI.
 
+If a matching helper already exists (you re-added a plant, or you're upgrading from an older install), AquaTag **adopts** it instead of creating a second one, so the existing watering history is preserved. **Settings → HA Helper Cleanup** lists every `input_datetime` helper in your instance alongside which plant claims it, and lets you delete the ones nothing is using.
+
 ---
 
 ## What AquaTag creates and emits
@@ -44,9 +46,16 @@ For each plant you add, AquaTag creates one helper:
 
 | Entity ID | Type | Purpose |
 |---|---|---|
-| `input_datetime.plant_{id}_last_watered` | `input_datetime` | Timestamp of the most recent watering |
+| `input_datetime.{slug}_last_watered` | `input_datetime` | Timestamp of the most recent watering |
 
-The `{id}` is a slugified version of the plant name (e.g. *"Fiddle Leaf Fig"* → `fiddle_leaf_fig`).
+The helper is created with the name **`{Plant name} Last Watered`**, and Home Assistant derives the entity ID by slugifying that name — so *"Fiddle Leaf Fig"* becomes `input_datetime.fiddle_leaf_fig_last_watered`.
+
+Two consequences worth knowing before you write automations against these:
+
+- **The exact ID is HA's to choose, not AquaTag's.** If the name collides with an existing helper, HA appends a suffix (`..._last_watered_2`). AquaTag reads the assigned ID back and stores it, so it always addresses the right entity — but you shouldn't assume the ID from the plant name alone.
+- **Match on the `_last_watered` suffix, not on a prefix.** Every example below enumerates helpers that way, which is stable regardless of what HA named them.
+
+> **Upgrading from before v1.1.0?** Earlier docs described these entities as `input_datetime.plant_{id}_last_watered`. That prefixed form was never actually produced — it was a bug, and any automation filtering on `input_datetime.plant_` silently matched nothing. The examples below are corrected. AquaTag links to your existing helpers automatically on first refresh; nothing to migrate by hand.
 
 ### Events fired on every tap
 
@@ -69,8 +78,12 @@ For reference, AquaTag talks to HA via:
 
 - `POST /api/services/input_datetime/set_datetime` — update last-watered timestamp on tap
 - `POST /api/events/aquatag_plant_watered` — fire the event
-- `GET /api/states/input_datetime.plant_{id}_last_watered` — fetch state on app launch
-- `wss://.../api/websocket` → `input_datetime/create` — auto-create helpers when a plant is added
+- `GET /api/states` — read every helper's current value on refresh, and match unlinked plants to existing helpers
+- `wss://.../api/websocket` → `input_datetime/create` — create a helper when a plant is added
+- `wss://.../api/websocket` → `input_datetime/list` — find helpers to adopt, and populate the cleanup screen
+- `wss://.../api/websocket` → `input_datetime/delete` — remove helpers from the cleanup screen
+
+Note that `set_datetime` takes a **timezone-naive local** timestamp (`2026-08-25 12:12:32`), not ISO 8601. Sending an ISO string with a `Z` suffix makes HA keep the UTC digits and drop the offset, recording the watering hours early.
 
 ---
 
@@ -112,13 +125,12 @@ automation:
           due_plants: >-
             {% set ns = namespace(plants=[]) %}
             {% for entity in states.input_datetime
-                if entity.entity_id.startswith('input_datetime.plant_')
-                and entity.entity_id.endswith('_last_watered') %}
+                if entity.entity_id.endswith('_last_watered') %}
               {% set last = as_datetime(entity.state) | as_local %}
               {% set days = (now() - last).days %}
               {% if days >= 7 %}
                 {% set name = entity.entity_id
-                  | regex_replace('^input_datetime\\.plant_', '')
+                  | regex_replace('^input_datetime\\.', '')
                   | regex_replace('_last_watered$', '')
                   | replace('_', ' ') | title %}
                 {% set ns.plants = ns.plants + [name] %}
@@ -153,7 +165,7 @@ automation:
       # Plant is overdue (uses the timestamp attribute, avoiding the naive/aware datetime gotcha)
       - condition: template
         value_template: >-
-          {% set ts = state_attr('input_datetime.plant_balcony_basil_last_watered', 'timestamp') %}
+          {% set ts = state_attr('input_datetime.balcony_basil_last_watered', 'timestamp') %}
           {{ ts is not none and ((now().timestamp() - ts) / 86400) >= 2 }}
       # Fetch daily forecast into a variable
       - service: weather.get_forecasts
@@ -181,7 +193,7 @@ Requires a moisture sensor entity — Xiaomi Mi Flora, an ESPHome custom probe, 
 The dryness rate is a **template sensor**. HA now recommends creating these as **Template Helpers** via the UI (*Settings → Devices & Services → Helpers → Create Helper → Template → Sensor*) rather than as YAML — the UI variant is reloadable without restarting HA and shows up in the helper registry. Both variants have identical semantics; the YAML below is preserved for readability. Whichever you use, paste this `state:` template:
 
 ```jinja
-{% set ts = state_attr('input_datetime.plant_monstera_last_watered', 'timestamp') %}
+{% set ts = state_attr('input_datetime.monstera_last_watered', 'timestamp') %}
 {% if ts is none %}
   0
 {% else %}
@@ -206,7 +218,7 @@ template:
         unique_id: monstera_dryness_rate
         unit_of_measurement: "%/day"
         state: >-
-          {% set ts = state_attr('input_datetime.plant_monstera_last_watered', 'timestamp') %}
+          {% set ts = state_attr('input_datetime.monstera_last_watered', 'timestamp') %}
           {% if ts is none %}
             0
           {% else %}
@@ -272,12 +284,11 @@ type: markdown
 title: 🌱 Plant care while we're away
 content: |
   {% for entity in states.input_datetime
-       if entity.entity_id.startswith('input_datetime.plant_')
-       and entity.entity_id.endswith('_last_watered') %}
+       if entity.entity_id.endswith('_last_watered') %}
     {%- set last = as_datetime(entity.state) | as_local -%}
     {%- set days_ago = (now() - last).days -%}
     {%- set name = entity.entity_id
-        | regex_replace('^input_datetime\.plant_', '')
+        | regex_replace('^input_datetime\.', '')
         | regex_replace('_last_watered$', '')
         | replace('_', ' ') | title -%}
     - **{{ name }}**: last watered {{ days_ago }} day{{ 's' if days_ago != 1 else '' }} ago
@@ -308,12 +319,11 @@ automation:
           message: >-
             {% set ns = namespace(due=[]) %}
             {% for entity in states.input_datetime
-                 if entity.entity_id.startswith('input_datetime.plant_')
-                 and entity.entity_id.endswith('_last_watered') %}
+                 if entity.entity_id.endswith('_last_watered') %}
               {% set last = as_datetime(entity.state) | as_local %}
               {% if (now() - last).days >= 7 %}
                 {% set name = entity.entity_id
-                    | regex_replace('^input_datetime\\.plant_', '')
+                    | regex_replace('^input_datetime\\.', '')
                     | regex_replace('_last_watered$', '')
                     | replace('_', ' ') %}
                 {% set ns.due = ns.due + [name] %}
@@ -358,7 +368,8 @@ automation:
 
 - Settings → Test Connection in AquaTag — does it return green?
 - Has the Long-Lived Access Token been revoked in HA? They don't expire, but you can revoke them.
-- Does `input_datetime.plant_{id}_last_watered` exist for that plant? If not, the auto-create WebSocket call may have failed; deleting and re-adding the plant in AquaTag usually fixes it.
+- Does a helper named `{Plant name} Last Watered` exist? Check **Settings → HA Helper Cleanup** in AquaTag — it lists every `input_datetime` helper in your instance and shows which plant, if any, is linked to it. A plant with no linked helper appears as "Not linked yet" in the Plant Helpers section above it.
+- If the plant shows as unlinked, pull to refresh on the Plants tab. AquaTag will adopt a matching helper or create one.
 
 **The `aquatag_plant_watered` event doesn't fire.**
 
@@ -368,6 +379,16 @@ automation:
 **Adding a plant doesn't auto-create the helper.**
 
 - Some HA configurations restrict WebSocket creation of helpers via API. Check `configuration.yaml` for any `homeassistant: allowlist_external_dirs` or auth_provider restrictions, and check the HA log for permission errors when you tap "Add plant" in AquaTag.
+
+**I have duplicate helpers for the same plant.**
+
+- Versions before v1.1.0 created a new helper on every sync attempt instead of reusing the existing one, so a single plant could accumulate several (`cactus_last_watered`, `..._2`, `..._3`).
+- Open **Settings → HA Helper Cleanup** and scan. Each helper shows its last-watered date, which is usually what tells the duplicates apart. Tick the ones you don't want and delete. The helper your plant is currently linked to is locked and can't be selected, so you can't remove the live one by accident.
+- Deleting a helper also removes its history from HA's recorder, so pick the one holding the dates you want to keep.
+
+**My automations stopped matching anything after upgrading.**
+
+- If they filter on `input_datetime.plant_`, they never matched — see the note in [Entities created automatically](#entities-created-automatically). Switch to the `_last_watered` suffix form used throughout this cookbook.
 
 ---
 
