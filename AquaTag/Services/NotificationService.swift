@@ -79,12 +79,42 @@ class NotificationService {
         )
         dateComponents.hour = timeComponents.hour
         dateComponents.minute = timeComponents.minute
+
+        // An overdue plant's next-watering date is already behind us, and a
+        // non-repeating calendar trigger pinned to a past moment is accepted
+        // by iOS but never delivered. Roll forward to the next occurrence of
+        // the preferred time so overdue plants are still reminded — otherwise
+        // the plants that most need watering are exactly the ones that go
+        // silent. Only reachable from the reschedule paths; watering always
+        // produces a future date.
+        if let intended = calendar.date(from: dateComponents), intended <= Date() {
+            guard let nextOccurrence = calendar.nextDate(
+                after: Date(),
+                matching: DateComponents(
+                    hour: timeComponents.hour,
+                    minute: timeComponents.minute
+                ),
+                matchingPolicy: .nextTime
+            ) else {
+                return
+            }
+            dateComponents = calendar.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: nextOccurrence
+            )
+        }
         
         let content = UNMutableNotificationContent()
         content.title = String(format: String(localized: "notification.title"), plant.emoji, plant.name)
 
         if let daysSince = plant.daysSinceLastWatered {
-            content.body = String(format: String(localized: "notification.body.days.ago"), daysSince)
+            // Plural rules live in Localizable.stringsdict, which only resolves
+            // through localizedStringWithFormat + NSLocalizedString — the same
+            // pairing L10n.Status.overdue uses.
+            content.body = String.localizedStringWithFormat(
+                NSLocalizedString("notification.body.days.ago", comment: "Watering reminder body, days since last watered"),
+                daysSince
+            )
         } else {
             content.body = String(localized: "notification.body.default")
         }
