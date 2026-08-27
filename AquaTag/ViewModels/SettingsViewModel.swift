@@ -136,6 +136,22 @@ class SettingsViewModel {
         }
     }
     
+    // MARK: - Reminder Rescheduling
+
+    /// Re-applies every plant's reminder using the current preferred time.
+    ///
+    /// Pending notifications are pinned to a fixed date and time, so changing
+    /// the reminder time left every existing reminder on the old one. Called
+    /// when the time changes or reminders are switched back on.
+    func rescheduleAllReminders() async {
+        guard notificationsEnabled else { return }
+        let plants = (try? modelContext.fetch(FetchDescriptor<Plant>())) ?? []
+        await NotificationService.shared.rescheduleAll(
+            plants: plants,
+            preferredTime: notificationTime
+        )
+    }
+
     // MARK: - Request Notification Permission
     
     func requestNotificationPermission() async {
@@ -143,8 +159,17 @@ class SettingsViewModel {
             let granted = try await NotificationService.shared.requestAuthorization()
             notificationsEnabled = granted
             saveSettings()
+            // Turning reminders back on should restore them, not wait for each
+            // plant to be watered again.
+            if granted { await rescheduleAllReminders() }
         } catch {
             print("Failed to request notification permission: \(error)")
         }
+    }
+
+    /// Drops every pending reminder when the user switches reminders off.
+    func disableReminders() async {
+        saveSettings()
+        await NotificationService.shared.cancelAllReminders()
     }
 }

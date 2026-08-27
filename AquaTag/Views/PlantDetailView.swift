@@ -51,8 +51,18 @@ struct PlantDetailView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(isEditing ? L10n.Detail.toolbarSave : L10n.Detail.toolbarEdit) {
-                        if isEditing { try? modelContext.save(); isEditing = false }
-                        else { isEditing = true }
+                        if isEditing {
+                            try? modelContext.save()
+                            isEditing = false
+                            // A pending notification is pinned to a fixed date,
+                            // so an edited interval would otherwise keep firing
+                            // on the old schedule until the plant was watered
+                            // again. Done on commit rather than on change, since
+                            // Cancel rolls the context back.
+                            rescheduleReminder()
+                        } else {
+                            isEditing = true
+                        }
                     }
                     .foregroundStyle(AquaTag.Colors.moss)
                     .fontWeight(.semibold)
@@ -66,6 +76,17 @@ struct PlantDetailView: View {
                 Button(L10n.Plants.cancel, role: .cancel) { }
                 Button(L10n.Detail.deleteAction, role: .destructive) { deletePlant() }
             } message: { Text(L10n.Detail.deleteBody(plantName: plant.name)) }
+        }
+    }
+
+    private func rescheduleReminder() {
+        guard settings.first?.notificationsEnabled ?? true else { return }
+        let preferredTime = settings.first?.notificationTime ?? Date()
+        Task {
+            try? await NotificationService.shared.scheduleWateringReminder(
+                for: plant,
+                preferredTime: preferredTime
+            )
         }
     }
 

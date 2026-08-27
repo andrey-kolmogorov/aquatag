@@ -27,6 +27,25 @@ class NotificationService {
         return settings.authorizationStatus
     }
     
+    /// Returns whether we may display notifications, prompting once if the
+    /// user has not been asked yet.
+    ///
+    /// Requesting here rather than at launch keeps the prompt in context: it
+    /// appears the first time a plant is watered, which is the first moment a
+    /// reminder means anything.
+    func ensureAuthorized() async -> Bool {
+        switch await checkAuthorizationStatus() {
+        case .notDetermined:
+            return (try? await requestAuthorization()) ?? false
+        case .authorized, .provisional, .ephemeral:
+            return true
+        case .denied:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
     // MARK: - Schedule Watering Reminder
     
     func scheduleWateringReminder(
@@ -34,6 +53,15 @@ class NotificationService {
         preferredTime: Date
     ) async throws {
         guard let nextWateringDate = plant.nextWateringDate else {
+            return
+        }
+
+        // Ask for permission the first time there is actually something to
+        // show. Previously this was only requested when the user toggled
+        // "Watering reminders" from off to on — but that toggle defaults to
+        // on, so anyone who never touched it was never prompted, and iOS
+        // silently accepted every scheduled reminder without displaying one.
+        guard await ensureAuthorized() else {
             return
         }
         
@@ -79,6 +107,18 @@ class NotificationService {
         try await UNUserNotificationCenter.current().add(request)
     }
     
+    /// Re-schedules every plant's reminder.
+    ///
+    /// Needed because a pending `UNCalendarNotificationTrigger` is a fixed
+    /// point in time: changing a plant's interval or the preferred reminder
+    /// time does not move an already-scheduled notification. Without this, the
+    /// only thing that ever refreshed a reminder was watering the plant again.
+    func rescheduleAll(plants: [Plant], preferredTime: Date) async {
+        for plant in plants {
+            try? await scheduleWateringReminder(for: plant, preferredTime: preferredTime)
+        }
+    }
+
     // MARK: - Cancel Watering Reminder
     
     func cancelWateringReminder(for plant: Plant) async {

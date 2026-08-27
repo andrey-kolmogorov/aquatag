@@ -143,7 +143,16 @@ struct SettingsView: View {
                 Toggle(isOn: Binding(get: { viewModel?.notificationsEnabled ?? true },
                                      set: { v in
                                          viewModel?.notificationsEnabled = v
-                                         if v { Task { await viewModel?.requestNotificationPermission() } }
+                                         Task {
+                                             if v {
+                                                 await viewModel?.requestNotificationPermission()
+                                             } else {
+                                                 // Switching off has to clear what's
+                                                 // already queued — pending reminders
+                                                 // fire regardless of this flag.
+                                                 await viewModel?.disableReminders()
+                                             }
+                                         }
                                      })) {
                     Text(L10n.Settings.remindersToggle).font(AquaTag.Typography.body)
                 }
@@ -151,7 +160,13 @@ struct SettingsView: View {
 
                 if viewModel?.notificationsEnabled == true {
                     DatePicker(selection: Binding(get: { viewModel?.notificationTime ?? Date() },
-                                                  set: { viewModel?.notificationTime = $0 }),
+                                                  set: { newTime in
+                                                      viewModel?.notificationTime = newTime
+                                                      // Already-scheduled reminders keep
+                                                      // their original time unless they're
+                                                      // rebuilt.
+                                                      Task { await viewModel?.rescheduleAllReminders() }
+                                                  }),
                         displayedComponents: .hourAndMinute) {
                         Text(L10n.Settings.remindersTime)
                     }
