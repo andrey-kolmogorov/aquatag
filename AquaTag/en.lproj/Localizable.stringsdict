@@ -34,5 +34,21 @@
             <string>%d days overdue</string>
         </dict>
     </dict>
+    <key>notification.body.days.ago</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@days@</string>
+        <key>days</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Last watered %d day ago</string>
+            <key>other</key>
+            <string>Last watered %d days ago</string>
+        </dict>
+    </dict>
 </dict>
 </plist>

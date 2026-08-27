@@ -167,7 +167,7 @@
 
 // MARK: - Push notifications
 "notification.title"             = "%@ %@ gießen!";
-"notification.body.days.ago"     = "Zuletzt vor %d Tagen gegossen";
+// notification.body.days.ago liegt in Localizable.stringsdict (Pluralregeln).
 "notification.body.default"      = "Deine Pflanze braucht Wasser";
 
 // MARK: - Characters — archetype + tagline per character

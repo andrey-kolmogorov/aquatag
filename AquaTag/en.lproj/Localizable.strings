@@ -167,7 +167,7 @@
 
 // MARK: - Push notifications
 "notification.title"             = "%@ Time to water %@!";
-"notification.body.days.ago"     = "Last watered %d days ago";
+// notification.body.days.ago lives in Localizable.stringsdict for plural rules.
 "notification.body.default"      = "It's time to give your plant some water";
 
 // MARK: - Characters — archetype + tagline per character
